@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   
+   
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="%perspective.name"
+            class="srmplugin.Perspective"
+            id="SrmPlugIn.perspective">
+      </perspective>
+      
+     <perspective
+            name="%perspective.name.0"
+            class="srmplugin.Perspective2"
+            id="SrmPlugIn.perspective2">
+      </perspective>
+      
+   </extension>
+   
+   
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            name="%view.name"
+            class="srmplugin.CoupledChanges"
+            id="SrmPlugIn.CoupledChanges">
+      </view>
+      <view
+            class="srmplugin.CommittedChanges"
+            id="SrmPlugIn.CommittedChanges"
+            name="%view.name.0"
+            restorable="true">
+      </view>
+      <view
+            class="srmplugin.Mesageview"
+            id="SrmPlugIn.Mesageview"
+            name="%view.name.1"
+            restorable="true">
+      </view>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu">
+         <menu
+               label="%menu.label">
+            <command
+                  commandId="SrmPlugIn.settings"
+                  label="Wizard"
+                  style="push">
+            </command>
+            <command
+                  commandId="SrmPlugIn.openperspective"
+                  label="Perspektive öffnen"
+                  style="push">
+            </command>
+           
+            
+         </menu>
+      </menuContribution>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="SrmPlugIn.settings"
+            name="Open Settings Dialog">
+      </command>
+      <command
+            id="SrmPlugIn.openperspective"
+            name="Open Perspective">
+      </command>
+   </extension>
+   
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="srmplugin.wizard.SRMSettingsDialogHandler"
+            commandId="SrmPlugIn.settings">
+      </handler>
+      <handler
+            class="srmplugin.openPerspective"
+            commandId="SrmPlugIn.openperspective">
+      </handler>
+      
+       </extension>
+       
+       
+
+</plugin>
