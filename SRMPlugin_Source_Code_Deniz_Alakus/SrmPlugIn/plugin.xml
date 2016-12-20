@@ -40,6 +40,12 @@
             name="%view.name.1"
             restorable="true">
       </view>
+      <view
+            class="srmplugin.WordCloud"
+            id="SrmPlugIn.WordCloud"
+            name="Word Cloud View"
+            restorable="true">
+      </view>
    </extension>
    
    <extension
