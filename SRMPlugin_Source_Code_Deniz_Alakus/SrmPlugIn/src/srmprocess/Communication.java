@@ -20,7 +20,7 @@ public class Communication {
 	public static boolean control = true;
 
 	// -----------------------------------------------------------
-	// Allgemeine R�ckgabe
+	// Allgemeine Rueckgabe
 
 	public String view(String str) {
 		return str;

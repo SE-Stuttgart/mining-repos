@@ -149,7 +149,7 @@ public class MySQLWriter extends Observable implements DatabaseWriter {
 		}
 		res.close();
 
-		// Only if all three tables exists we don't hava to create new tables
+		// Only if all three tables exists we don't have to create new tables
 		if (commitTableExists && fileTableExists && usageTableExists) {
 			return true;
 		}

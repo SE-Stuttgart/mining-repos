@@ -18,13 +18,13 @@ public class Process {
 
 	DBConnection dataBaseCon = DBConnection.getDBConnection();
 	powerSet ps = new powerSet();
-	// Variablen für Cluster Analyse
+	// Variablen fuer Cluster Analyse
 	public static List<List<String>> ClusterToDiagram;
 	private Hashtable<List<String>, List<List<String>>> Cluster;
 	private List<List<String>> TempCluster;
 	public static List<List<String>> ClusterInput;
 	public static List<List<String>> ClusterErgebnis;
-	// Variablen für Klaasifikation Analyse
+	// Variablen für Klassifikation Analyse
 	public static List<List<String>> KlassifikationErgebnis;
 	private List<String> CommitIDGruppekey;
 	private boolean CommitIDGruppeControl = true;
@@ -32,10 +32,10 @@ public class Process {
 	private static Hashtable<List<String>, Integer> CommitIDGruppeSort;
 	private List<List<String>> TempCommitIDGruppe;
 
-	// ----Diese Methode wird in der CoupledChnages.java nach der Path
-	// bestimmung angeruffen.
+	// ----Diese Methode wird in der CoupledChnages.java nach 
+	// der Path-Bestimmung aufgerufen.
 	public void Run(String buffer, String perspective) {
-		// Ausgewählte Path/File wird inder Outputtable gesucht.
+		// Ausgewaehlter Path/File wird in der Outputtable gesucht.
 		dataBaseCon.ReadOutputTable(buffer);
 		ClusterInput = new ArrayList<>();
 		ClusterInput = DBConnection.sqlprocedureInput;
@@ -260,8 +260,8 @@ public class Process {
 					}
 				} // for j
 			} // for i
-				// Inhalt der akt. Pontenzmege bereits in "Key" CommitIDGruppe
-				// vorhanden.
+				// Falls der Inhalt der aktuellen Potenzmenge bereits in "Key" CommitIDGruppe
+				// vorhanden ist
 			if (index != CommitIDGruppekey.size() && j == key.size()) {
 				CommitIDGruppeControl = true;
 				return false;

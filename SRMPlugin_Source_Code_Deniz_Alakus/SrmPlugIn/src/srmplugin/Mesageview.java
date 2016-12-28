@@ -236,8 +236,8 @@ public class Mesageview extends ViewPart {
 	}
 
 	// Path Information Tab des Message View definiert.
-	// In diesem TAb werden zwei ListViewer "Commit-ID und Commit Message"
-	// genutzt, benötige information werden in dieser Methode überrmittelt.
+	// In diesem Tab werden zwei ListViewer "Commit-ID" und "Commit Message"
+	// genutzt, benoetige Informationen werden in dieser Methode Ueberrmittelt.
 
 	private org.eclipse.swt.widgets.Control getTabDocuControl(TabFolder tabFolder) {
 

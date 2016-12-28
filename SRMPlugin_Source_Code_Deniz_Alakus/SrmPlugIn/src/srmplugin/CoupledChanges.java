@@ -144,9 +144,9 @@ public class CoupledChanges extends ViewPart {
 	@SuppressWarnings("unchecked")
 	public void CommunicationEvent(String perspective) {
 
-		// ----------Zuerst werden Control Events zur alle Views gesendet.
+		// ----------Zuerst werden Control Events zu allen Views gesendet.
 		Communication.control = true;
-		// Hier werden Control Event zum Coupled Chages View gesendet.
+		// Hier werden Control Event zur Coupled Changes View gesendet.
 		communication.ViewCommunication("file", communication.view("Control"), "viewcommunicationfile/syncEvent");
 		// Hier werden Control Event zum Commit Information Tab des Message
 		// Views gesendet.
@@ -258,13 +258,13 @@ public class CoupledChanges extends ViewPart {
 	 */
 	public void createPartControl(final Composite parent) {
 
-		// hier werden Listerner registert.
+		// hier werden Listener registert.
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(listener);
 
 		final ListViewer listViewer = new ListViewer(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 		final List list = listViewer.getList();
 
-		// Hier werden gesendete Event empf�ngt, entkapselt und in zugeh�rigen
+		// Hier werden gesendete Events empfangen, entkapselt und in der zugehoerigen
 		// View angezeigt.
 		BundleContext ctx = FrameworkUtil.getBundle(CoupledChanges.class).getBundleContext();
 		
@@ -287,14 +287,14 @@ public class CoupledChanges extends ViewPart {
 		properties.put(EventConstants.EVENT_TOPIC, "viewcommunicationfile/*");
 		ctx.registerService(EventHandler.class, handler, properties);
 
-		// Falls ein File aus der File-Gruppe ausgew�hlt werden, werden zwei
-		// Werte errmittelt.
+		// Falls ein File aus der File-Gruppe ausgewaehlt wird, werden zwei
+		// Werte ermittelt.
 		list.addSelectionListener(new SelectionListener() {
 
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
-				// Falls selektierte Zeile ein Item vorhanden ist,..
+				// Falls in der ausgewaehlten Zeile ein Item vorhanden ist,..
 				if (!list.getItem(list.getSelectionIndex()).equals(" ")) {
 
 					if (DBConnection.sqlprocedureInput.size() != 0) {
