@@ -52,6 +52,10 @@ public class WordCloud extends ViewPart {
 	}
 
 	
+	/**
+	 * Takes filepath, extracts filename, appends filename to filenamelist
+	 * @param filepath
+	 */
 	private void addFilenameToList(String filepath) {
 		if (((filepath) != (null))
 				&& (filepath).length() > 0
@@ -109,7 +113,7 @@ public class WordCloud extends ViewPart {
 			if (Communication.control) {
 				// TODO: Clear the panel
 
-				System.out.println("1");
+				System.out.println("TODO: Clear all labels!");
 
 			} else {
 
@@ -158,6 +162,15 @@ public class WordCloud extends ViewPart {
 	public void setFocus() {
 		// TODO Auto-generated method stub
 
+	}
+
+	/**
+	 * after the WordCloud View has revieved all Cluster Information it can now 
+	 * start to manipulate the data to create a WordCloud.
+	 */
+	public static void createWordCloud() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -75,7 +75,7 @@ public class Mesageview extends ViewPart {
 
 	// Commit Information Tab des Message View definiert.
 	// Dieser Tab beinhaltet eine Tabelle mit Spalten "Commit-ID und Commit Message"
-	// Benötigte Informationen werden in dieser Methode überrmittelt.
+	// Benoetigte Informationen werden in dieser Methode Ueberrmittelt.
 
 	private org.eclipse.swt.widgets.Control getTabcommitControl(TabFolder tabFolder) {
 		// Create some labels and text fields

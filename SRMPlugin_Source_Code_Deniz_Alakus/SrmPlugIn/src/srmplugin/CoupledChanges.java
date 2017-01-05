@@ -215,8 +215,8 @@ public class CoupledChanges extends ViewPart {
 						index++;
 					}
 				}
-				// Nach alle File gesendet werden, werden eine leere Zeile in
-				// Coupled Changes View hinzugef�gt.
+				// Nachdem alle Files gesendet wurden, wird eine leere Zeile in
+				// Coupled Changes View hinzugefuegt.
 				communication.ViewCommunication("file", communication.view(" "), "viewcommunicationfile/syncEvent");
 				// In Coupled Changes View angezeigte Cluster/File Gruppe werden
 				// in Outputtable gespeichert.
@@ -224,30 +224,34 @@ public class CoupledChanges extends ViewPart {
 
 			}
 			
+			//Nachdem alle Cluster an Coupled Changes & Word Cloud View gesendet wurden
+			// wird jetzt die Wordcloud erzeugt.
+			 WordCloud.createWordCloud();
+			
 			
 			if (perspective.equals("SrmPlugIn.perspective2")) {
-				// Klassifikationsergenisse werden zuesrt sortiert.
+				// Klassifikationsergenisse werden zuerst sortiert.
 				commitsort = process.sortValue();
 				for (int i = 0; i < commitsort.size(); i++) {
 					Communication.control = false;
-					// Falls Commit-ID Gruppe in der Transakinonen mindestens
-					// zweimal aufgetreten w�rden,
-					// werden zum Rankin Information Tab des Commit Changes Vies
+					// Falls Commit-ID Gruppe in den Transaktionen mindestens
+					// zweimal aufgetreten wuerden,
+					// werden zum Ranking Information Tab des Commit Changes Views
 					// gesendet.
 					if (commitsort.get(i).getValue() >= 2) {
 						communication.ViewCommunication("serachcommitid",
 								communication.view(commitsort.get(i).getValue().toString() + " "
 										+ commitsort.get(i).getKey().toString()),
 								"viewcommunicationserachcommitid/syncEvent");
-						// gesendete Commit-Id Gruppe werden noch eine sepatren
+						// gesendete Commit-Id Gruppe werden noch in einem separaten
 						// Array gespeichert.
 						// Falls Benutzer im Ranking Information TAb des Commit
-						// Chages VIew eine Gruppe ausw�hlen w�rde,
-						// werde es in dieser Array gesucht und weiter bearbitet.
+						// Changes View eine Gruppe auswaehlen wuerde,
+						// wird es in diesem Array gesucht und weiter bearbeitet.
 						Process.KlassifikationErgebnis.add((java.util.List<String>) commitsort.get(i).getKey());
 					}
 				} 
-			}
+			}				
 		}
 
 	}
