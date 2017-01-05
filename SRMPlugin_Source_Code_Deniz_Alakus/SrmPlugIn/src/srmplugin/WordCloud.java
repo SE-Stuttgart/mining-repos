@@ -14,18 +14,25 @@ import org.osgi.service.event.EventHandler;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.swing.JLabel;
 
 import srmprocess.Communication;
 import srmprocess.DBConnection;
 
+@SuppressWarnings("unused")
 public class WordCloud extends ViewPart {
 	public static final String ID = "SrmPlugIn.WordCloud";
-	List<String> filenames = new ArrayList<String>();
+	static List<String> filenames = new ArrayList<String>();
 
 	// the listener we register with the selection service
 	private ISelectionListener listener = new ISelectionListener() {
@@ -51,24 +58,21 @@ public class WordCloud extends ViewPart {
 		System.out.println("Created Word Cloud Table");
 	}
 
-	
 	/**
 	 * Takes filepath, extracts filename, appends filename to filenamelist
+	 * 
 	 * @param filepath
 	 */
 	private void addFilenameToList(String filepath) {
-		if (((filepath) != (null))
-				&& (filepath).length() > 0
-				&& !(filepath).equals(" ")
-				&& filepath.contains("/")
+		if (((filepath) != (null)) && (filepath).length() > 0 && !(filepath).equals(" ") && filepath.contains("/")
 				&& filepath.contains(".")) {
 
 			String filename = getFileName(filepath);
 			filenames.add(filename);
 		}
-		
+
 	}
-	
+
 	/**
 	 * Extracts the filename from a given property path string
 	 * 
@@ -119,24 +123,13 @@ public class WordCloud extends ViewPart {
 
 				if (parent.getDisplay().getThread() == Thread.currentThread()) {
 
-					// add clickable labels for filenames tied to filepaths via
+					// TODO: add clickable labels for filenames tied to filepaths via
 					// some ID
 
 					// get file name of path
 					// src/main/java/de/MainClass.java -> MainClass
-
-					System.out.println("### DEBUG ### " + ((String) event.getProperty("file")));
-
 					addFilenameToList((String) event.getProperty("file"));
 					
-
-					for (String file : filenames) {
-						System.out.println(file);
-
-					}
-					System.out.println("################");
-					System.out.println("################");
-
 				} else {
 					parent.getDisplay().syncExec(() -> System.out.println("3"));
 				}
@@ -156,8 +149,6 @@ public class WordCloud extends ViewPart {
 
 	}
 
-	
-
 	@Override
 	public void setFocus() {
 		// TODO Auto-generated method stub
@@ -165,11 +156,83 @@ public class WordCloud extends ViewPart {
 	}
 
 	/**
-	 * after the WordCloud View has revieved all Cluster Information it can now 
+	 * after the WordCloud View has revieved all Cluster Information it can now
 	 * start to manipulate the data to create a WordCloud.
 	 */
 	public static void createWordCloud() {
 		// TODO Auto-generated method stub
+		
+		HashMap<String, Integer> countedFiles = countFileOccurences(filenames);
+		Map<String, Integer> sortedFiles = sortByValue(countedFiles);
+		
+		
+		__printHashMap(sortedFiles);
+		
+		/**
+		 * Hashtable<String, Integer> numbers = new Hashtable<String,
+		 * Integer>(); numbers.put("one", 1); numbers.put("two", 2);
+		 * numbers.put("three", 3);
+		 * 
+		 * To retrieve a number, use the following code:
+		 * 
+		 * Integer n = numbers.get("two"); if (n != null) {
+		 * System.out.println("two = " + n); }
+		 **/
+
+	}
+	
+	/**
+	 * Counts the number of occurences of a key in a HashMap
+	 * @param filesToCount
+	 * @return countedFiles
+	 */
+	private static HashMap<String,Integer> countFileOccurences(List<String> filesToCount) {
+		HashMap<String, Integer> countedFiles = new HashMap<String, Integer>();
+
+		//Iterate over the unsorted filename list.
+		for (String file : filesToCount) {
+
+			int count = 0;
+			// if the file is already in the Hashtable increment the count.
+			if (countedFiles.get(file) != null) {
+				count = countedFiles.get(file);
+				countedFiles.put(file, count + 1);
+			} 
+			// if the file is not in the Hashtable insert it.
+			else {
+				countedFiles.put(file,1);
+			}
+
+		}
+		return countedFiles;
+	}
+	
+	/**
+	 * Takes a Map and sorts by Value descending.
+	 * @param unsorted map
+	 * @return sorted map
+	 */
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+	    return map.entrySet()
+	              .stream()
+	              .sorted(Map.Entry.comparingByValue(Collections.reverseOrder()))
+	              .collect(Collectors.toMap(
+	                Map.Entry::getKey, 
+	                Map.Entry::getValue, 
+	                (e1, e2) -> e1, 
+	                LinkedHashMap::new
+	              ));
+	}
+
+	/**
+	 * DEBUG-method to view content of a HashMap.
+	 * @param sortedFiles
+	 */
+	public static void __printHashMap(Map<String, Integer> sortedFiles){
+		Set<String> keys = sortedFiles.keySet();
+		for(String key : keys){
+			System.out.println("Key: "+key+" || Value: "+sortedFiles.get(key));
+		}
 		
 	}
 
