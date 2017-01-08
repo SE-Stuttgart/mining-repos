@@ -12,6 +12,8 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import srmplugin.wordcloud.WordPlacer;
+
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -161,10 +163,11 @@ public class WordCloud extends ViewPart {
 	 */
 	public static void createWordCloud() {
 		// TODO Auto-generated method stub
-		
 		HashMap<String, Integer> countedFiles = countFileOccurences(filenames);
 		Map<String, Integer> sortedFiles = sortByValue(countedFiles);
 		
+		WordPlacer wp = new WordPlacer(sortedFiles);
+		wp.placeWords();
 		
 		__printHashMap(sortedFiles);
 		
