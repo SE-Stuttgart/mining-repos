@@ -3,7 +3,11 @@ package srmplugin;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.part.ViewPart;
@@ -33,6 +37,14 @@ import srmprocess.DBConnection;
 public class WordCloud extends ViewPart {
 	public static final String ID = "SrmPlugIn.WordCloud";
 	static List<String> filenames = new ArrayList<String>();
+	private Label label;
+	private Shell shell;
+	
+	
+	
+
+	
+	
 
 	// the listener we register with the selection service
 	private ISelectionListener listener = new ISelectionListener() {
@@ -108,9 +120,27 @@ public class WordCloud extends ViewPart {
 
 		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
 
-		Composite swtAwtComponent = new Composite(parent, SWT.EMBEDDED);
-		java.awt.Frame frame = SWT_AWT.new_Frame(swtAwtComponent);
-		javax.swing.JPanel panel = new javax.swing.JPanel();
+		label = new Label(parent , 0);
+		label.setText("HelloWorld");
+		label.setAlignment(SWT.CENTER);
+		
+		label.addMouseListener(new MouseAdapter() {
+			@Override
+			   public void mouseUp(MouseEvent event) {
+			      super.mouseUp(event);
+
+			      if (event.getSource() instanceof Label) {
+			         Label label = (Label)event.getSource();
+
+			         System.out.println("Label was clicked: " + label.getText());
+			      }
+			   }
+		});
+		
+		shell = new Shell();
+		
+	    
+		
 
 		EventHandler handler = event -> {
 
@@ -123,13 +153,14 @@ public class WordCloud extends ViewPart {
 
 				if (parent.getDisplay().getThread() == Thread.currentThread()) {
 
-					// TODO: add clickable labels for filenames tied to filepaths via
+					// TODO: add clickable labels for filenames tied to
+					// filepaths via
 					// some ID
 
 					// get file name of path
 					// src/main/java/de/MainClass.java -> MainClass
 					addFilenameToList((String) event.getProperty("file"));
-					
+
 				} else {
 					parent.getDisplay().syncExec(() -> System.out.println("3"));
 				}
@@ -142,10 +173,7 @@ public class WordCloud extends ViewPart {
 
 		OnStart();
 
-		panel.setForeground(Color.white);
-
-		frame.add(panel);
-		frame.setForeground(Color.white);
+		
 
 	}
 
@@ -161,13 +189,15 @@ public class WordCloud extends ViewPart {
 	 */
 	public static void createWordCloud() {
 		// TODO Auto-generated method stub
-		
+
 		HashMap<String, Integer> countedFiles = countFileOccurences(filenames);
 		Map<String, Integer> sortedFiles = sortByValue(countedFiles);
 		
-		
+		createWordTags(sortedFiles);
+
 		__printHashMap(sortedFiles);
-		
+		__printEveryWordInHashMap(sortedFiles);
+
 		/**
 		 * Hashtable<String, Integer> numbers = new Hashtable<String,
 		 * Integer>(); numbers.put("one", 1); numbers.put("two", 2);
@@ -180,16 +210,36 @@ public class WordCloud extends ViewPart {
 		 **/
 
 	}
-	
+
+	private static void createWordTags(Map<String, Integer> sortedFiles) {
+		
+		JLabel[] labelList = new JLabel[sortedFiles.size()-1];
+		int i=0;
+		
+		for(Map.Entry<String,Integer> entry : sortedFiles.entrySet()){
+			labelList[i].add(new JLabel("Test"));
+			/**
+			panelRef.add(labelList[i]);
+			panelRef.validate();
+			panelRef.repaint();
+			**/
+			i++;
+		}
+		
+		i=0;
+		
+	}
+
 	/**
 	 * Counts the number of occurences of a key in a HashMap
+	 * 
 	 * @param filesToCount
 	 * @return countedFiles
 	 */
-	private static HashMap<String,Integer> countFileOccurences(List<String> filesToCount) {
+	private static HashMap<String, Integer> countFileOccurences(List<String> filesToCount) {
 		HashMap<String, Integer> countedFiles = new HashMap<String, Integer>();
 
-		//Iterate over the unsorted filename list.
+		// Iterate over the unsorted filename list.
 		for (String file : filesToCount) {
 
 			int count = 0;
@@ -197,43 +247,54 @@ public class WordCloud extends ViewPart {
 			if (countedFiles.get(file) != null) {
 				count = countedFiles.get(file);
 				countedFiles.put(file, count + 1);
-			} 
+			}
 			// if the file is not in the Hashtable insert it.
 			else {
-				countedFiles.put(file,1);
+				countedFiles.put(file, 1);
 			}
 
 		}
 		return countedFiles;
 	}
-	
+
 	/**
 	 * Takes a Map and sorts by Value descending.
-	 * @param unsorted map
+	 * 
+	 * @param unsorted
+	 *            map
 	 * @return sorted map
 	 */
 	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-	    return map.entrySet()
-	              .stream()
-	              .sorted(Map.Entry.comparingByValue(Collections.reverseOrder()))
-	              .collect(Collectors.toMap(
-	                Map.Entry::getKey, 
-	                Map.Entry::getValue, 
-	                (e1, e2) -> e1, 
-	                LinkedHashMap::new
-	              ));
+		return map.entrySet().stream().sorted(Map.Entry.comparingByValue(Collections.reverseOrder()))
+				.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
 	}
 
 	/**
 	 * DEBUG-method to view content of a HashMap.
+	 * 
 	 * @param sortedFiles
 	 */
-	public static void __printHashMap(Map<String, Integer> sortedFiles){
+	public static void __printHashMap(Map<String, Integer> sortedFiles) {
 		Set<String> keys = sortedFiles.keySet();
-		for(String key : keys){
-			System.out.println("Key: "+key+" || Value: "+sortedFiles.get(key));
+		for (String key : keys) {
+			System.out.println("Key: " + key + " || Value: " + sortedFiles.get(key));
 		}
-		
+
+	}
+
+	/**
+	 * DEBUG-method only for Zwischenvortrag.
+	 * 
+	 * @param sortedFiles
+	 */
+	public static void __printEveryWordInHashMap(Map<String, Integer> sortedFiles) {
+		Set<String> keys = sortedFiles.keySet();
+		for (String key : keys) {
+			int value = sortedFiles.get(key);
+			for (int i = 0; i < value; i++) {
+				System.out.println(key);
+			}
+		}
 	}
 
 }

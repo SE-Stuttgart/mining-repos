@@ -216,6 +216,7 @@ public class MySQLWriter extends Observable implements DatabaseWriter {
 	 * 
 	 * @throws SQLException
 	 */
+	@SuppressWarnings("unused")
 	private void createCommitBackup() throws SQLException {
 		Statement stmt = conn.createStatement();
 		DateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
@@ -494,6 +495,7 @@ public class MySQLWriter extends Observable implements DatabaseWriter {
 	 * 
 	 * @throws SQLException
 	 */
+	@SuppressWarnings("unused")
 	private void createIssueBackup() throws SQLException {
 		Statement stmt = conn.createStatement();
 		DateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");
@@ -655,6 +657,7 @@ public class MySQLWriter extends Observable implements DatabaseWriter {
 	 * 
 	 * @throws SQLException
 	 */
+	@SuppressWarnings("unused")
 	private void createDocuBackup() throws SQLException {
 		Statement stmt = conn.createStatement();
 		DateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");

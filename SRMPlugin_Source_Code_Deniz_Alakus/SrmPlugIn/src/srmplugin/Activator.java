@@ -1,13 +1,13 @@
 package srmplugin;
 
-import org.eclipse.jface.dialogs.MessageDialog;
+//import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Shell;
+//import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-import FPGA.FPGrowthAlgorithmus;
-import srmprocess.DBConnection;
+//import FPGA.FPGrowthAlgorithmus;
+//import srmprocess.DBConnection;
 
 /**
  * The activator class controls the plug-in life cycle
