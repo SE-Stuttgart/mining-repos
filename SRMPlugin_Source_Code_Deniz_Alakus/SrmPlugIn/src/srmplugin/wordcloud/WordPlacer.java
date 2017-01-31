@@ -29,6 +29,7 @@ public class WordPlacer {
 			    .findView(WordCloud.ID);
 			if (part instanceof WordCloud) {
 			    WordCloud view = (WordCloud) part;
+			    
 			    // now access whatever internals you can get to
 			    
 			}

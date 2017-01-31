@@ -5,6 +5,11 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.RowData;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -29,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JLabel;
 
@@ -41,6 +47,8 @@ public class WordCloud extends ViewPart {
 	static List<String> filenames = new ArrayList<String>();
 	private Label label;
 	private Shell shell;
+	private static Composite par;
+	private static List<Label> labelList = new ArrayList<Label>();
 	
 	
 	
@@ -121,10 +129,18 @@ public class WordCloud extends ViewPart {
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(listener);
 
 		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
+		RowLayout layout = new RowLayout();
+		layout.wrap = true;
+		layout.pack = true;
+		layout.justify = true;
+		
+		par = parent;
+		par.setLayout(layout);
 
-		label = new Label(parent , 0);
+		/**
+		label = new Label(par ,SWT.LEAD );
 		label.setText("HelloWorld");
-		label.setAlignment(SWT.CENTER);
+		
 		
 		label.addMouseListener(new MouseAdapter() {
 			@Override
@@ -138,6 +154,7 @@ public class WordCloud extends ViewPart {
 			      }
 			   }
 		});
+		**/
 		
 		shell = new Shell();
 		
@@ -195,9 +212,18 @@ public class WordCloud extends ViewPart {
 		HashMap<String, Integer> countedFiles = countFileOccurences(filenames);
 		Map<String, Integer> sortedFiles = sortByValue(countedFiles);
 		
+		
+		
+		if(labelList.size()>0) {
+			clearLabels();
+		}
 		createWordTags(sortedFiles);
+		
+		par.layout();
+		/*
+		WordPlacer wp = new WordPlacer(sortedFiles);
 		wp.placeWords();
-
+		 */
 		__printHashMap(sortedFiles);
 		__printEveryWordInHashMap(sortedFiles);
 
@@ -213,23 +239,63 @@ public class WordCloud extends ViewPart {
 		 **/
 
 	}
+	
+	
+	
+
+	private static void clearLabels() {
+		for(Label l : labelList) {
+			l.dispose();
+		}
+		labelList.clear();
+		
+	}
 
 	private static void createWordTags(Map<String, Integer> sortedFiles) {
 		
-		JLabel[] labelList = new JLabel[sortedFiles.size()-1];
-		int i=0;
+		
+		
 		
 		for(Map.Entry<String,Integer> entry : sortedFiles.entrySet()){
-			labelList[i].add(new JLabel("Test"));
-			/**
-			panelRef.add(labelList[i]);
-			panelRef.validate();
-			panelRef.repaint();
-			**/
-			i++;
+			
+			
+			
+			
+			
+			Label l = new Label(par,SWT.LEAD);
+			l.setText(entry.getKey());
+			
+			
+			FontData[] fD = l.getFont().getFontData();
+			fD[0].setHeight(entry.getValue());
+			l.setFont( new Font(l.getDisplay(),fD[0]));
+			
+			
+			
+			
+			
+			
+			
+			l.addMouseListener(new MouseAdapter() {
+				@Override
+				   public void mouseUp(MouseEvent event) {
+				      super.mouseUp(event);
+
+				      if (event.getSource() instanceof Label) {
+				         Label label = (Label)event.getSource();
+
+				         System.out.println("Label was clicked: " + label.getText());
+				      }
+				   }
+			});
+			
+			
+			
+			labelList.add(l);
+			
+			
+			
 		}
-		
-		i=0;
 		
 	}
 
