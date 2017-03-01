@@ -27,7 +27,7 @@ public class SelectCommitersPage extends WizardPage {
 	String selectedCommitter = null;
 	
 	public SelectCommitersPage() {
-		super("Select Committers","Wähle Committer aus",null);
+		super("Select Committers","Choose Committers",null);
 	}
 	
 	@Override
@@ -50,17 +50,17 @@ public class SelectCommitersPage extends WizardPage {
 		
 		
 		// Der Minimum Supportwert ist zwischen 0.02 und 0.2
-		minsupport.setMinimum(20);
-		minsupport.setMaximum(200);
+		minsupport.setMinimum(20); 		// 2%
+		minsupport.setMaximum(200);		// 20%
 		minsupport.setIncrement(1);
-		minsupport.setSelection((int) (SRMSettings.minsupport * 1000));
-		minsuppl.setText(Double.toString(Math.floor(SRMSettings.minsupport*1000)/1000)+"%");
+		minsupport.setSelection((int) (SRMSettings.minsupport * 1000)); 					// 100
+		minsuppl.setText(Double.toString(Math.floor(SRMSettings.minsupport*1000)/10)+"%");	// 10%
 		minsuppl.pack();
 		minsupport.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				int val = minsupport.getSelection();
-				float valf = ((float) val) / 10; // verwendet für die Anzeige in %
+				float valf = ((float) val) / 10; // verwendet fuer die Anzeige in %
 				minsuppl.setText(Float.toString(valf)+"%");
 				minsuppl.pack();
 				// Skaliere in den korrekten Bereich [0.02,0.2]

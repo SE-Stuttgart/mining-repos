@@ -63,7 +63,7 @@ public class ATSRPage extends WizardPage implements Observer {
 		gd.widthHint = 160;
 		gd.horizontalSpan = 2;
 		
-		new Label(composite, SWT.NULL).setText("Datenbank: ");
+		new Label(composite, SWT.NULL).setText("Database: ");
 		database_field = new Text(composite, SWT.SINGLE);
 		database_field.setLayoutData(gd);
 		database_field.setText(SRMSettings.project_name);
@@ -71,7 +71,7 @@ public class ATSRPage extends WizardPage implements Observer {
 		gd = new GridData();
 		gd.widthHint = 160;
 		
-		new Label(composite, SWT.NULL).setText("GIT.exe Pfad: ");
+		new Label(composite, SWT.NULL).setText("Git.exe path: ");
 		git_field = new Text(composite, SWT.BORDER);
 		git_field.setLayoutData(gd);
 		if(settings.getGitPath() != null)

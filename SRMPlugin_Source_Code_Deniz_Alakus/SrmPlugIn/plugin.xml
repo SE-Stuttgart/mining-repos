@@ -43,7 +43,7 @@
       <view
             class="srmplugin.WordCloud"
             id="SrmPlugIn.WordCloud"
-            name="Word Cloud View"
+            name="%view.name.3"
             restorable="true">
       </view>
    </extension>
@@ -56,12 +56,12 @@
                label="%menu.label">
             <command
                   commandId="SrmPlugIn.settings"
-                  label="Wizard"
+                  label="%command.label.1"
                   style="push">
             </command>
             <command
                   commandId="SrmPlugIn.openperspective"
-                  label="Perspektive öffnen"
+                  label="%command.label.2"
                   style="push">
             </command>
            
@@ -74,11 +74,11 @@
          point="org.eclipse.ui.commands">
       <command
             id="SrmPlugIn.settings"
-            name="Open Settings Dialog">
+            name="%command.name.0">
       </command>
       <command
             id="SrmPlugIn.openperspective"
-            name="Open Perspective">
+            name="%command.name.1">
       </command>
    </extension>
    
