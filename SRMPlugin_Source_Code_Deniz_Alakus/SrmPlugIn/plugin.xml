@@ -94,6 +94,22 @@
       </handler>
       
        </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="SrmPlugIn.toolbar">
+            <command
+                  commandId="SrmPlugIn.settings"
+                  icon="icons/srm.gif"
+                  label="Toolbar Wizard"
+                  style="push">
+            </command>
+         </toolbar>
+      </menuContribution>
+   </extension>
        
        
 

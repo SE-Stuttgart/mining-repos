@@ -1,10 +1,22 @@
 package srmplugin;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+
+
+import org.eclipse.jface.viewers.ITreeSelection;
+import org.eclipse.jface.viewers.ListViewer;
+import org.eclipse.jface.viewers.TreePath;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FormData;
@@ -13,14 +25,19 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.ISelectionListener;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
+import FPGA.FPGrowthAlgorithmus;
 import srmplugin.wordcloud.WordPlacer;
 
 import java.awt.Color;
@@ -33,47 +50,155 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JLabel;
+import javax.swing.text.BadLocationException;
 
 import srmprocess.Communication;
 import srmprocess.DBConnection;
+import srmprocess.Process;
 
-@SuppressWarnings("unused")
+import org.eclipse.jface.text.ITextSelection;
+import org.eclipse.jface.text.IMarkSelection;
+
 public class WordCloud extends ViewPart {
 	public static final String ID = "SrmPlugIn.WordCloud";
+	
+	@SuppressWarnings("unused")
+	
+	
 	static List<String> filenames = new ArrayList<String>();
-	private Label label;
-	private Shell shell;
+	
+	DBConnection dataBaseCon = DBConnection.getDBConnection();
+	Communication communication = new Communication();
+	Process process = new Process();
+	
+	//parent Composite to hold the all Wordcloud Labels.
 	private static Composite par;
+	
 	private static List<Label> labelList = new ArrayList<Label>();
+	private ArrayList<Entry<?, Integer>> commitsort;
 	
-	
-	
+	private IWorkbenchWindow window;
+	private IWorkbenchPage activePage;
 
-	
-	
+	private IProject theProject;
+	private IResource theResource;
 
+	public String workspaceName;
+	public String projectName;
+	public String fileName;
+	
+	public Shell shell;
+	
+	
+	
 	// the listener we register with the selection service
 	private ISelectionListener listener = new ISelectionListener() {
 		public void selectionChanged(IWorkbenchPart sourcepart, ISelection selection) {
 			// we ignore our own selections
 			if (sourcepart != WordCloud.this) {
 				filenames.clear();
-				determineThePathOfTheSelectedFileAndSendIt(sourcepart, selection);
+				
+				//determine path of selected file in ProjectExplorer
+				//determineThePathOfTheSelectedFileAndSendIt(sourcepart, selection);
+				
+				try {
+					showSelection(sourcepart, selection);
+				} catch (org.eclipse.jface.text.BadLocationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+	};
+	
+	/**
+	 * Shows the given selection in this view.
+	 * 
+	 */
+	public void showSelection(IWorkbenchPart sourcepart, ISelection selection) throws org.eclipse.jface.text.BadLocationException {
+		setContentDescription(sourcepart.getTitle() + " (" + selection.getClass().getName() + ")");
+		if (selection instanceof IStructuredSelection) {
+			IStructuredSelection ss = (IStructuredSelection) selection;
+			showItems(ss.toArray());
+		}
+		if (selection instanceof ITextSelection) {
+			ITextSelection ts  = (ITextSelection) selection;
+			showText(ts.getText());
+		}
+		if (selection instanceof IMarkSelection) {
+			IMarkSelection ms = (IMarkSelection) selection;
+		}
+			
+		
+	}
+	
+	private void showItems(Object[] items) {
+		
+	}
+	
+	private void showText(String text) {
+		
+	}
+	
+	
+
+	/*
+	 * Calculate the path of the selected file in the Package explorer
+	 * Run Cluster analysis and send results to WordCloudView.
+	 */
+	private void determineThePathOfTheSelectedFileAndSendIt(IWorkbenchPart sourcepart, ISelection selection) {
+		
+		if(selection instanceof IStructuredSelection) {
+			// Calculate the path of the selected file
+			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			activePage = window.getActivePage();
+			ISelection selection1 = activePage.getSelection();
+			
+			if(selection1 instanceof ITreeSelection) {
+				TreeSelection treeSelection = (TreeSelection) selection1;
+				if(treeSelection.getPaths().length != 0) {
+					
+					TreePath[] treePaths = treeSelection.getPaths();
+					TreePath treePath = treePaths[0];
+					Object firstSegmentObj =  treePath.getFirstSegment();
+					theProject = (IProject) ((IAdaptable) firstSegmentObj).getAdapter(IProject.class);
+					Object lastSegmentObj = treePath.getLastSegment();
+					theResource = (IResource) ((IAdaptable) lastSegmentObj).getAdapter(IResource.class);
+					workspaceName = theResource.getWorkspace().getRoot().getLocation().toOSString();
+					projectName = theProject.getName();
+					fileName = theResource.getFullPath().removeFirstSegments(1).toOSString();
+					fileName = fileName.replace("\\", "/");
+				
+					// Cluster- und Klassifikationsanalyse
+					IPerspectiveDescriptor perspective = activePage.getPerspective();
+					process.Run(fileName, perspective.getId());
+					// Ergebnisse der Cluster- und Klassifikationsanalyse werden
+					// zur Word Cloud View und Commit Changes View gesendet.
+					System.out.println(perspective.getId());
+					CommunicationEvent(perspective.getId());
+				}
 			}
 		}
 
-	};
-
-	private void determineThePathOfTheSelectedFileAndSendIt(IWorkbenchPart sourcepart, ISelection selection) {
-		// TODO Auto-generated method stub
-
+	}
+	
+	/*
+	 * Ergebnisse der Cluster- und Klassifikationsanalyse werden zum Coupled
+	 * Changes View und Commit Changes View gesendet.
+	 * 
+	 */
+	@SuppressWarnings("unchecked")
+	public void CommunicationEvent(String perspective) {
+		
+		
 	}
 
-	DBConnection dataBaseCon = DBConnection.getDBConnection();
+	
 
 	public void OnStart() {
 
@@ -125,76 +250,10 @@ public class WordCloud extends ViewPart {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		// registriere Listener
-		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(listener);
-
-		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
-		RowLayout layout = new RowLayout();
-		layout.wrap = true;
-		layout.pack = true;
-		layout.justify = true;
-		
-		par = parent;
-		par.setLayout(layout);
-
-		/**
-		label = new Label(par ,SWT.LEAD );
-		label.setText("HelloWorld");
-		
-		
-		label.addMouseListener(new MouseAdapter() {
-			@Override
-			   public void mouseUp(MouseEvent event) {
-			      super.mouseUp(event);
-
-			      if (event.getSource() instanceof Label) {
-			         Label label = (Label)event.getSource();
-
-			         System.out.println("Label was clicked: " + label.getText());
-			      }
-			   }
-		});
-		**/
-		
-		shell = new Shell();
-		
-	    
-		
-
-		EventHandler handler = event -> {
-
-			if (Communication.control) {
-				// TODO: Clear the panel
-
-				System.out.println("TODO: Clear all labels!");
-
-			} else {
-
-				if (parent.getDisplay().getThread() == Thread.currentThread()) {
-
-					// TODO: add clickable labels for filenames tied to
-					// filepaths via
-					// some ID
-
-					// get file name of path
-					// src/main/java/de/MainClass.java -> MainClass
-					addFilenameToList((String) event.getProperty("file"));
-
-				} else {
-					parent.getDisplay().syncExec(() -> System.out.println("3"));
-				}
-			}
-		};
-
-		Dictionary<String, String> properties = new Hashtable<String, String>();
-		properties.put(EventConstants.EVENT_TOPIC, "viewcommunicationfile/*");
-		ctx.registerService(EventHandler.class, handler, properties);
-
-		OnStart();
-
 		
 
 	}
+
 
 	@Override
 	public void setFocus() {
@@ -259,9 +318,6 @@ public class WordCloud extends ViewPart {
 		for(Map.Entry<String,Integer> entry : sortedFiles.entrySet()){
 			
 			
-			
-			
-			
 			Label l = new Label(par,SWT.LEAD);
 			l.setText(entry.getKey());
 			
@@ -269,10 +325,6 @@ public class WordCloud extends ViewPart {
 			FontData[] fD = l.getFont().getFontData();
 			fD[0].setHeight(entry.getValue());
 			l.setFont( new Font(l.getDisplay(),fD[0]));
-			
-			
-			
-			
 			
 			
 			
@@ -292,7 +344,6 @@ public class WordCloud extends ViewPart {
 			
 			
 			labelList.add(l);
-			
 			
 			
 		}

@@ -2,6 +2,8 @@ package srmplugin;
 
 import java.util.ArrayList;
 
+
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 
@@ -65,6 +67,7 @@ public class CoupledChanges extends ViewPart {
 	public static final String ID = "SrmPlugIn.CoupledChanges";
 
 	@SuppressWarnings("unused")
+	
 	private TableViewer viewer;
 	DBConnection dataBaseCon = DBConnection.getDBConnection();
 	Communication communication = new Communication();
@@ -95,6 +98,7 @@ public class CoupledChanges extends ViewPart {
 		}
 	};
 
+	
 	/*
 	 * Calculate the path of the selected File.
 	 */
@@ -178,8 +182,8 @@ public class CoupledChanges extends ViewPart {
 
 		/*
 		 * 
-		 * Falls in der outputtable keine selektierte Pfad vorhanden ist, werden
-		 * Fehler Event zur Coupled Chages View und Ranking Information TAb des
+		 * Falls in der outputtable keine selektierter Pfad vorhanden ist, werden
+		 * Fehler Event zur Coupled Chages View und Ranking Information Tab des
 		 * Commit Changes View gesendet.
 		 * 
 		 */
@@ -226,8 +230,7 @@ public class CoupledChanges extends ViewPart {
 			
 			//Nachdem alle Cluster an Coupled Changes & Word Cloud View gesendet wurden
 			// wird jetzt die Wordcloud erzeugt.
-			 WordCloud.createWordCloud();
-			
+			// WordCloud.createWordCloud();
 			
 			if (perspective.equals("SrmPlugIn.perspective2")) {
 				// Klassifikationsergenisse werden zuerst sortiert.
@@ -330,9 +333,9 @@ public class CoupledChanges extends ViewPart {
 								"viewcommunicationdocuPath/syncEvent");
 
 						Communication.control = false;
-						// Alle Paht der selektierten File Gruppe und gekoppelte
+						// Jeder Pfad der ausgewaehlten File Gruppe und gekoppelte
 						// Path Description
-						// werden Path Information Tab des Message View
+						// werden zum Path Information Tab des Message View
 						// gesendet.
 						for (int w = 1 + FPGrowthAlgorithmus.maxSupport
 								+ Integer.parseInt(

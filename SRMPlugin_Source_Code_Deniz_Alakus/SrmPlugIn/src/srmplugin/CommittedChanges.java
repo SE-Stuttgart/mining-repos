@@ -33,7 +33,6 @@ import srmprocess.Communication;
 import srmprocess.DBConnection;
 import srmprocess.Process;
 
-//import java.awt.Rectangle;
 public class CommittedChanges extends ViewPart {
 	public static final String ID = "SrmPlugIn.CommittedChanges";
 	DBConnection dataBaseCon = DBConnection.getDBConnection();
@@ -46,7 +45,7 @@ public class CommittedChanges extends ViewPart {
 	 */
 	public void createPartControl(Composite parent) {
 		// Create the containing tab folder
-		// parent.setLayout(new FillLayout());
+		
 		TabFolder tabFolder = new TabFolder(parent, SWT.H_SCROLL | SWT.V_SCROLL);
 
 		// Create each tab and set its text, tool tip text,
@@ -63,7 +62,7 @@ public class CommittedChanges extends ViewPart {
 		commit.setControl(getTabcommitControl(tabFolder));
 	}
 
-	// ------Ranking Information TAb des Commit Changes View definirt.
+	// ------Ranking Information Tab des Commit Changes View definiert.
 	private org.eclipse.swt.widgets.Control getTabCCRankingControl(final Composite parent, TabFolder tabFolder) {
 
 		// Create some labels and text fields
@@ -73,7 +72,7 @@ public class CommittedChanges extends ViewPart {
 		final ListViewer listViewer = new ListViewer(composite, SWT.H_SCROLL | SWT.V_SCROLL);
 		final List list = listViewer.getList();
 
-		// Hier werden gesendete Event empf�ngt, entkapselt und in zugeh�rigen
+		// Hier werden gesendete Event empfangen, entkapselt und in der zugehoerigen
 		// View angezeigt.
 		BundleContext ctx = FrameworkUtil.getBundle(CommittedChanges.class).getBundleContext();
 		EventHandler handler = event -> {
@@ -103,11 +102,11 @@ public class CommittedChanges extends ViewPart {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 
-				// ----------Zuerst werden Control Events zur alle Views -au�er
+				// ----------Zuerst werden Control Events zur alle Views -ausser
 				// Selbst- gesendet.
 
 				Communication.control = true;
-				// Hier werden Control Event zum Coupled Chages View gesendet.
+				// Hier werden Control Event zum Coupled Changes View gesendet.
 				communication.ViewCommunication("file", communication.view("Control"),
 						"viewcommunicationfile/syncEvent");
 				// Hier werden Control Event zum Commit Information Tab des
