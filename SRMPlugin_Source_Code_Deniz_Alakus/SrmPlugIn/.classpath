@@ -4,10 +4,8 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry excluding="ATSR/bin/atsr/controller/transformer/impls/" kind="src" path="src"/>
 	<classpathentry exported="true" kind="lib" path="src/lib/FPGA.jar"/>
+	<classpathentry exported="true" kind="lib" path="src/lib/h2-1.4.192.jar"/>
 	<classpathentry exported="true" kind="lib" path="src/lib/mysql-connector-java-5.1.34-bin.jar"/>
 	<classpathentry exported="true" kind="lib" path="src/lib/swt.jar"/>
-	<classpathentry kind="lib" path="src/lib/h2-1.4.192.jar"/>
-	<classpathentry kind="lib" path="D:/Programs/Eclipse/eclipse/plugins/org.eclipse.jface.text_3.12.0.v20170121-0914.jar"/>
-	<classpathentry kind="lib" path="D:/Programs/Eclipse/eclipse/plugins/org.eclipse.text_3.6.100.v20170111-2042.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -50,6 +50,9 @@ public class DBConnection {
 					"jdbc:h2:"+Platform.getConfigurationLocation().getURL().getPath()
 					+database
 					+";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");
+			System.out.println("jdbc:h2:"+Platform.getConfigurationLocation().getURL().getPath()
+					+database
+					+";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");
 		} catch (ClassNotFoundException e) {
 			System.out.println("Treiber nicht gefunden");
 		} catch (SQLException e) {
@@ -568,6 +571,13 @@ public class DBConnection {
 
 	
 	// this method is used to create the Cluster- und outputtable in the Datenbank
+	/*
+	 * After the Frequent-Itemset-Analysis by the FPGrowthAlgorithm terminated,
+	 * this function creates the Outputtable.
+	 * Old Outputtables are being overwritten, thus only containing up-to-date information.
+	 * This function only creates the table structure.
+	 * It is filled with data from the FPGrowthAlgorithm later on.
+	 */
 	public void CreateOutputTable(String outputTableName) {
 		conn = getConnection();
 		if (conn != null) {
@@ -604,7 +614,7 @@ public class DBConnection {
 		if (conn != null) {
 			try {
 				statement = conn.createStatement();
-
+				System.out.println("insert " + outputTableName + " table_______START");
 				String sqlSTR = "INSERT INTO " + outputTableName + "(";
 				sqlSTR += "Support, Length, ";
 				for (int y = 1; y <= FPGrowthAlgorithmus.maxSupport; y++) {
@@ -622,8 +632,9 @@ public class DBConnection {
 				}
 				sqlSTR += "'" + cluster.get(c) + "'";
 				sqlSTR += " )";
+				System.out.println("SQL-String: " + sqlSTR );
 				statement.executeUpdate(sqlSTR);
-				System.out.println("insert " + outputTableName + " table");
+				System.out.println("insert " + outputTableName + " table_______END");
 			}
 
 			catch (SQLException se) {
