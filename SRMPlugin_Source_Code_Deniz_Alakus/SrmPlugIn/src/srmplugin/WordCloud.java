@@ -68,15 +68,18 @@ import srmprocess.Communication;
 import srmprocess.DBConnection;
 import srmprocess.Process;
 
-@SuppressWarnings("restriction") // This is for suppressing the discouraged access warnings for Cloudio which is not yet officially released.
+@SuppressWarnings("restriction") // This is for suppressing the discouraged
+									// access warnings for Cloudio which is not
+									// yet officially released.
 public class WordCloud extends ViewPart {
 	/**
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "SrmPlugIn.WordCloud";
-	
+
 	/**
-	 * Selection listener for getting the filename / path of Package Explorer selections
+	 * Selection listener for getting the filename / path of Package Explorer
+	 * selections
 	 */
 	private ISelectionListener selListener = new ISelectionListener() {
 		public void selectionChanged(IWorkbenchPart sourcepart, ISelection selection) {
@@ -86,13 +89,12 @@ public class WordCloud extends ViewPart {
 			}
 		}
 	};
-	
-	
+
 	Process process = new Process();
 	DBConnection dataBaseCon = DBConnection.getDBConnection();
 	Communication communication = new Communication();
 	private ArrayList<Entry<?, Integer>> commitsort;
-	
+
 	private IWorkbenchWindow window;
 	private IWorkbenchPage activePage;
 
@@ -103,7 +105,8 @@ public class WordCloud extends ViewPart {
 	public String projectName;
 	public String fileName;
 	
-	
+	private String endOfTransmissionString = "-End of Transmission-";
+
 	/*
 	 * Calculate the path of the selected File.
 	 */
@@ -125,10 +128,10 @@ public class WordCloud extends ViewPart {
 					theProject = (IProject) ((IAdaptable) firstSegmentObj).getAdapter(IProject.class);
 					Object lastSegmentObj = treePath.getLastSegment();
 					theResource = (IResource) ((IAdaptable) lastSegmentObj).getAdapter(IResource.class);
-					
+
 					workspaceName = theResource.getWorkspace().getRoot().getLocation().toOSString();
 					projectName = theProject.getName();
-//					
+					//
 					fileName = theResource.getFullPath().removeFirstSegments(1).toOSString();
 					fileName = fileName.replace("\\", "/");
 
@@ -136,15 +139,17 @@ public class WordCloud extends ViewPart {
 					IPerspectiveDescriptor perspective = activePage.getPerspective();
 					process.Run(fileName, perspective.getId());
 					// Ergebnisse der Cluster- und Klassifikationsanalyse werden
-					// zum Coupled Changes View und Commit Changes View gesendet.
+					// zum Coupled Changes View und Commit Changes View
+					// gesendet.
 					CommunicationEvent(perspective.getId());
 				}
 			}
 		}
 	}
-	
+
 	/*
-	 * Ergebnisse der Cluster- und Klassifikationsanalyse werden zum Word Cloud View und Commit Changes View gesendet.
+	 * Ergebnisse der Cluster- und Klassifikationsanalyse werden zum Word Cloud
+	 * View und Commit Changes View gesendet.
 	 * 
 	 */
 	@SuppressWarnings("unchecked")
@@ -152,9 +157,12 @@ public class WordCloud extends ViewPart {
 
 		// ----------Zuerst werden Control Events zu allen Views gesendet.
 		Communication.control = true;
-		// Hier werden Control Event zur Coupled Changes View und zur Word Cloud View gesendet.
+		// Hier werden Control Event zur Coupled Changes View und zur Word Cloud
+		// View gesendet.
 		communication.ViewCommunication("file", communication.view("Control"), "viewcommunicationfile/syncEvent");
-		//System.out.println("Was wird gesendet?: "+ " file " + communication.view("Control") + " " + "viewcommunicationfile/syncEvent");
+		// System.out.println("Was wird gesendet?: "+ " file " +
+		// communication.view("Control") + " " +
+		// "viewcommunicationfile/syncEvent");
 		// Hier werden Control Event zum Commit Information Tab des Message
 		// Views gesendet.
 		communication.ViewCommunication("commitdata", communication.view("Control"),
@@ -185,9 +193,9 @@ public class WordCloud extends ViewPart {
 
 		/*
 		 * 
-		 * Falls in der outputtable keine selektierter Pfad vorhanden ist, werden
-		 * Fehler Event zur Coupled Changes View und Ranking Information Tab des
-		 * Commit Changes View gesendet.
+		 * Falls in der outputtable keine selektierter Pfad vorhanden ist,
+		 * werden Fehler Event zur Coupled Changes View und Ranking Information
+		 * Tab des Commit Changes View gesendet.
 		 * 
 		 */
 		if (DBConnection.sqlprocedureInput.size() == 0) {
@@ -218,17 +226,19 @@ public class WordCloud extends ViewPart {
 								.ViewCommunication("file",
 										communication.view(String.valueOf(s + 1) + "." + index + " "
 												+ Process.ClusterErgebnis.get(s).get(x)),
-								"viewcommunicationfile/syncEvent");
-						/*System.out.println("Dieser String wird gesendet: " + "file" + " , " + 
-										communication.view(String.valueOf(s + 1) + "." + index + " "
-												+ Process.ClusterErgebnis.get(s).get(x)) + " , " +
-								"viewcommunicationfile/syncEvent");
-								*/
+										"viewcommunicationfile/syncEvent");
+						/*
+						 * System.out.println("Dieser String wird gesendet: " +
+						 * "file" + " , " + communication.view(String.valueOf(s
+						 * + 1) + "." + index + " " +
+						 * Process.ClusterErgebnis.get(s).get(x)) + " , " +
+						 * "viewcommunicationfile/syncEvent");
+						 */
 						index++;
 					}
 				}
-				// Nachdem alle Files gesendet wurden, wird eine leere Zeile in
-				// Word Cloud View hinzugefuegt.
+				// Nachdem alle Files eines Clusters gesendet wurden, wird eine leere Zeile in
+				// die Coupled Changes View eingefuegt.
 				communication.ViewCommunication("file", communication.view(" "), "viewcommunicationfile/syncEvent");
 				// In Word CLoud View angezeigte Cluster/File Gruppe werden
 				// in Outputtable gespeichert.
@@ -236,9 +246,9 @@ public class WordCloud extends ViewPart {
 
 			}
 			
-			//Nachdem alle Cluster an Word Cloud View gesendet wurden
-			// wird jetzt die Wordcloud erzeugt.
-			// WordCloud.createWordCloud();
+			// Nachdem alle Cluster an Word Cloud View gesendet wurden
+			// wird jetzt die ein endOfTransmissionString gesendet der signalisiert, dass die WordCloud aktualisiert werden muss.
+			communication.ViewCommunication("file", communication.view(endOfTransmissionString), "viewcommunicationfile/syncEvent");
 			
 			if (perspective.equals("SrmPlugIn.perspective2")) {
 				// Klassifikationsergenisse werden zuerst sortiert.
@@ -247,22 +257,25 @@ public class WordCloud extends ViewPart {
 					Communication.control = false;
 					// Falls Commit-ID Gruppe in den Transaktionen mindestens
 					// zweimal aufgetreten wuerden,
-					// werden zum Ranking Information Tab des Commit Changes Views
+					// werden zum Ranking Information Tab des Commit Changes
+					// Views
 					// gesendet.
 					if (commitsort.get(i).getValue() >= 2) {
 						communication.ViewCommunication("serachcommitid",
 								communication.view(commitsort.get(i).getValue().toString() + " "
 										+ commitsort.get(i).getKey().toString()),
 								"viewcommunicationserachcommitid/syncEvent");
-						// gesendete Commit-Id Gruppe werden noch in einem separaten
+						// gesendete Commit-Id Gruppe werden noch in einem
+						// separaten
 						// Array gespeichert.
 						// Falls Benutzer im Ranking Information TAb des Commit
 						// Changes View eine Gruppe auswaehlen wuerde,
-						// wird es in diesem Array gesucht und weiter bearbeitet.
+						// wird es in diesem Array gesucht und weiter
+						// bearbeitet.
 						Process.KlassifikationErgebnis.add((java.util.List<String>) commitsort.get(i).getKey());
 					}
-				} 
-			}				
+				}
+			}
 		}
 
 	}
@@ -272,125 +285,121 @@ public class WordCloud extends ViewPart {
 	private Action action1;
 	private Action action2;
 	WordCloudLabelProvider labelProvider;
-	 
+
 	/**
 	 * The constructor.
 	 */
 	public WordCloud() {
 	}
-
-	private CloudOptionsComposite options;
 	
 	/**
-	 * This is a callback that will allow us
-	 * to create the viewer and initialize it.
+	 * This is a callback that will allow us to create the viewer and initialize
+	 * it.
 	 */
 	public void createPartControl(Composite parent) {
-		
+
 		parent.addControlListener(new ControlAdapter() {
-	        @Override
-	        public void controlResized(final ControlEvent e) {
-	            System.out.println("RESIZE");
-	            cloud.zoomFit();
-	        }
-	    });
-		
+			@Override
+			public void controlResized(final ControlEvent e) {
+				System.out.println("RESIZE");
+				cloud.zoomFit();
+			}
+		});
+
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(selListener);
-		
+
 		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
-		
-		
-		cloud = new TagCloud(parent,SWT.NONE);
+
+		cloud = new TagCloud(parent, SWT.NONE);
 		viewer = new TagCloudViewer(cloud);
-		
-		//Init Word Cloud Data Structures
-		
+
+		// Init Word Cloud Data Structures
+
 		labelProvider = new WordCloudLabelProvider(cloud.getFont());
-		
+
 		FilePathToClusterMap filePathToClusterMap = new FilePathToClusterMap(labelProvider);
-		
+
 		String clusterPath1 = "1.0 path/SRM-Plugin";
 		String clusterPath2 = "2.0 path/SRM-Plugin";
 		String clusterPath3 = "2.1 path/sub/Select file in Package Explorer";
-		
+
 		filePathToClusterMap.putInClusterHashMap(clusterPath1);
 		filePathToClusterMap.putInClusterHashMap(clusterPath2);
 		filePathToClusterMap.putInClusterHashMap(clusterPath3);
 		List<MyWord> wordList = filePathToClusterMap.getWordList();
-		
-		//When the selection of file in Project explorer gets changed, this gets executed		
+
+		// When the selection of file in Project explorer gets changed, this
+		// gets executed
 		EventHandler handler = event -> {
-			if(Communication.control){
-				//Removes all files from the WordCloud  word supply.
+			if (Communication.control) {
+				// Removes all files from the WordCloud word supply.
 				wordList.clear();
 			} else {
-				if (parent.getDisplay().getThread() == Thread.currentThread()){
-					//insert and process all incoming filepaths
-					String currentClusterPath = (String)event.getProperty("file");
-					filePathToClusterMap.putInClusterHashMap(currentClusterPath);
-					viewer.setInput(wordList);
+				if (parent.getDisplay().getThread() == Thread.currentThread()) {
+					// insert and process all incoming filepaths
+					String currentClusterPath = (String) event.getProperty("file");
 					
-				} else{
-					
+					if (currentClusterPath.equals(endOfTransmissionString)) {
+						viewer.setInput(wordList);
+					} else{
+						filePathToClusterMap.putInClusterHashMap(currentClusterPath);
+					}
+
+				} else {
+
 				}
 			}
 		};
-		
 
 		Dictionary<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, "viewcommunicationfile/*");
 		ctx.registerService(EventHandler.class, handler, properties);
-		
-		
+
 		viewer.setContentProvider(new IStructuredContentProvider() {
-			
+
 			@Override
-			public void dispose(){
-				
+			public void dispose() {
+
 			}
-			
+
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 				List<?> list = (List<?>) newInput;
-				if(list == null || list.size() == 0)
+				if (list == null || list.size() == 0)
 					return;
-				
-				
+
 			}
-			
+
 			@Override
 			public Object[] getElements(Object inputElement) {
 				return ((List<?>) inputElement).toArray();
 			}
 		});
-		
-		
-		
+
 		viewer.setLabelProvider(labelProvider);
-		
-		viewer.addSelectionChangedListener(new ISelectionChangedListener(){
-			
-			//TODO
+
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+			// TODO
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
-				if(!selection.isEmpty()){
-				System.out.println("Selected: " + ((MyWord)selection.getFirstElement()).getWord());
-				//Implement WordCloudView -> MessageView dataflow here!
-				
+				if (!selection.isEmpty()) {
+					System.out.println("Selected: " + ((MyWord) selection.getFirstElement()).getWord());
+					// Implement WordCloudView -> MessageView dataflow here!
+
 				}
-			}});
-		
-		
+			}
+		});
+
 		cloud.setBounds(0, 0, parent.getBounds().width, parent.getBounds().height);
 		cloud.zoomFit();
-		
+
 		viewer.getCloud().setMaxFontSize(100);
 		viewer.getCloud().setMinFontSize(15);
-		
-		
+
 		viewer.setInput(wordList);
-		
+
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "cloudioViewtest.viewer");
 		getSite().setSelectionProvider(viewer);
@@ -399,11 +408,6 @@ public class WordCloud extends ViewPart {
 		contributeToActionBars();
 	}
 
-
-	
-
-	
-	
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
@@ -435,7 +439,7 @@ public class WordCloud extends ViewPart {
 		// Other plug-ins can contribute there actions here
 		manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
-	
+
 	private void fillLocalToolBar(IToolBarManager manager) {
 		manager.add(action1);
 		manager.add(action2);
@@ -449,9 +453,9 @@ public class WordCloud extends ViewPart {
 		};
 		action1.setText("Action 1");
 		action1.setToolTipText("Action 1 tooltip");
-		action1.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-			getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
+		action1.setImageDescriptor(
+				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+
 		action2 = new Action() {
 			public void run() {
 				showMessage("Action 2 executed");
@@ -459,17 +463,13 @@ public class WordCloud extends ViewPart {
 		};
 		action2.setText("Action 2");
 		action2.setToolTipText("Action 2 tooltip");
-		action2.setImageDescriptor(PlatformUI.getWorkbench().getSharedImages().
-				getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
-		
+		action2.setImageDescriptor(
+				PlatformUI.getWorkbench().getSharedImages().getImageDescriptor(ISharedImages.IMG_OBJS_INFO_TSK));
+
 	}
 
-	
 	private void showMessage(String message) {
-		MessageDialog.openInformation(
-			viewer.getControl().getShell(),
-			"Sample View",
-			message);
+		MessageDialog.openInformation(viewer.getControl().getShell(), "Sample View", message);
 	}
 
 	/**

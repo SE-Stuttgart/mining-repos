@@ -87,6 +87,8 @@ public class CoupledChanges extends ViewPart {
 	public String workspaceName;
 	public String projectName;
 	public String fileName;
+	
+	private String endOfTransmissionString = "-End of Transmission-";
 
 	// the listener we register with the selection service
 	private ISelectionListener listener = new ISelectionListener() {
@@ -283,7 +285,9 @@ public class CoupledChanges extends ViewPart {
 
 				if (parent.getDisplay().getThread() == Thread.currentThread()) {
 
+					if(!event.getProperty("file").equals(endOfTransmissionString)){
 					listViewer.add(event.getProperty("file"));
+					}
 				} else {
 					parent.getDisplay().syncExec( () -> listViewer.add(event.getProperty("file")));
 				}
