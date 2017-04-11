@@ -1,10 +1,12 @@
 package srmplugin;
 
-import srmplugin.wordcloud.UniqueFile;
+import srmplugin.wordcloud.WordCloudLabelProvider;
+import srmplugin.wordcloud.myWord;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
@@ -16,6 +18,9 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.gef.cloudio.internal.ui.ICloudLabelProvider;
 import org.eclipse.gef.cloudio.internal.ui.TagCloud;
 import org.eclipse.gef.cloudio.internal.ui.TagCloudViewer;
+import org.eclipse.gef.cloudio.internal.ui.data.Type;
+import org.eclipse.gef.cloudio.internal.ui.view.CloudOptionsComposite;
+import org.eclipse.gef.cloudio.internal.ui.view.TypeLabelProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -131,8 +136,6 @@ public class WordCloud extends ViewPart {
 					process.Run(fileName, perspective.getId());
 					// Ergebnisse der Cluster- und Klassifikationsanalyse werden
 					// zum Coupled Changes View und Commit Changes View gesendet.
-					System.out.println("Ergebnisse der Cluster & Klassifikationsanalyse gehen jetzt an die Views");
-					System.out.println("Und zwar von: " + (String) perspective.getId()); 
 					CommunicationEvent(perspective.getId());
 				}
 			}
@@ -150,7 +153,7 @@ public class WordCloud extends ViewPart {
 		Communication.control = true;
 		// Hier werden Control Event zur Coupled Changes View und zur Word Cloud View gesendet.
 		communication.ViewCommunication("file", communication.view("Control"), "viewcommunicationfile/syncEvent");
-		System.out.println("Was wird gesendet?: "+ " file " + communication.view("Control") + " " + "viewcommunicationfile/syncEvent");
+		//System.out.println("Was wird gesendet?: "+ " file " + communication.view("Control") + " " + "viewcommunicationfile/syncEvent");
 		// Hier werden Control Event zum Commit Information Tab des Message
 		// Views gesendet.
 		communication.ViewCommunication("commitdata", communication.view("Control"),
@@ -215,10 +218,11 @@ public class WordCloud extends ViewPart {
 										communication.view(String.valueOf(s + 1) + "." + index + " "
 												+ Process.ClusterErgebnis.get(s).get(x)),
 								"viewcommunicationfile/syncEvent");
-						System.out.println("Dieser String wird gesendet: " + "file" + " , " + 
+						/*System.out.println("Dieser String wird gesendet: " + "file" + " , " + 
 										communication.view(String.valueOf(s + 1) + "." + index + " "
 												+ Process.ClusterErgebnis.get(s).get(x)) + " , " +
 								"viewcommunicationfile/syncEvent");
+								*/
 						index++;
 					}
 				}
@@ -262,62 +266,20 @@ public class WordCloud extends ViewPart {
 
 	}
 
-
-	static class CustomLabelProvider extends BaseLabelProvider implements ICloudLabelProvider{
-		private Font font;
-		public CustomLabelProvider(Font font){
-			this.font = font;
-		}
-		@Override
-		public String getLabel(Object element) {
-			// TODO Auto-generated method stub
-			return element.toString();
-		}
-		@Override
-		public double getWeight(Object element) {
-			// TODO Auto-generated method stub
-			return Math.random();
-		}
-		@Override
-		public Color getColor(Object element) {
-			// TODO Auto-generated method stub
-			return Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
-		}
-		@Override
-		public FontData[] getFontData(Object element) {
-			// TODO Auto-generated method stub
-			return font.getFontData();
-		}
-		@Override
-		public float getAngle(Object element) {
-			// TODO Auto-generated method stub
-			return (float) (0);
-		}
-		@Override
-		public String getToolTip(Object element) {
-			// TODO Auto-generated method stub
-			return element.toString();
-		}		
-	}
-
-	
-	
-
-	
 	private TagCloudViewer viewer;
 	private TagCloud cloud;
 	private Action action1;
 	private Action action2;
+	WordCloudLabelProvider labelProvider;
 	 
-
-	
-
-/**
+	/**
 	 * The constructor.
 	 */
 	public WordCloud() {
 	}
 
+	private CloudOptionsComposite options;
+	
 	/**
 	 * This is a callback that will allow us
 	 * to create the viewer and initialize it.
@@ -339,40 +301,53 @@ public class WordCloud extends ViewPart {
 		
 		
 		
-		
+		int maxOccurence = 1;
 		
 		cloud = new TagCloud(parent,SWT.NONE);
 		viewer = new TagCloudViewer(cloud);
 		
-		// Demo data
-		List<String> data = new ArrayList<>();		
-		data.add("SRM-Plugin");
-		data.add("No file selected");
-		data.add("Select file in Package Explorer");
-		
-		
-		viewer.setSelection(new StructuredSelection(Arrays.asList("Hello Cloudio")));
 		
 		
 		
+		//Init Word Cloud Data Structures
+		
+		labelProvider = new WordCloudLabelProvider(cloud.getFont());
+		
+		HashMap<String,List<String>>fileInCluster = new HashMap<String,List<String>>();
+		List<myWord> wordList = new ArrayList<myWord>();
+		
+		String clusterPath1 = "1.0 path/SRM-Plugin";
+		//String clusterPath2 = "2.0 path/SRM-Plugin";
+		String clusterPath3 = "2.1 path/sub/Select file in Package Explorer";
+		
+		putInClusterHashMap(clusterPath1, fileInCluster);
+		updateWordList(wordList,fileInCluster,clusterPath1);
+		//putInClusterHashMap(clusterPath2, fileInCluster);
+		//updateWordList(wordList,fileInCluster,clusterPath2);
+		putInClusterHashMap(clusterPath3, fileInCluster);
+		updateWordList(wordList,fileInCluster,clusterPath3);
+		
+		cloud.redraw();
 		
 		
 		
 		
-		
-		
+		//When the WordCloud gets redrawn (Selection of file in Project explorer) this gets executed		
 		EventHandler handler = event -> {
 			if(Communication.control){
-				System.out.println("LÖSCHE WORDCLOUD DATA");
-				//Clear WordCloud data
+				//System.out.println("LÖSCHE WORDCLOUD DATA");
+				//Removes all files from the WordCloud  word supply.
+				wordList.clear();
 			} else {
 				if (parent.getDisplay().getThread() == Thread.currentThread()){
 					//füge wörter zu wordcloud data hinzu
-					System.out.println("ERSTER FALL: " + event.getProperty("file"));
-				} else{
-					parent.getDisplay().syncExec( () -> //Füge Wörter zu WorDCloud hinzu 
+					String currentClusterPath = (String)event.getProperty("file");
+					putInClusterHashMap(currentClusterPath,fileInCluster);
+					updateWordList(wordList, fileInCluster, currentClusterPath);
+					viewer.setInput(wordList);
 					
-					System.out.println("Zweiter FALL: " + event.getProperty("file")));
+				} else{
+					
 				}
 			}
 		};
@@ -383,6 +358,8 @@ public class WordCloud extends ViewPart {
 		ctx.registerService(EventHandler.class, handler, properties);
 		
 		
+		
+		labelProvider.setMaxOccurrences(maxOccurence);
 		viewer.setContentProvider(new IStructuredContentProvider() {
 			
 			@Override
@@ -391,7 +368,11 @@ public class WordCloud extends ViewPart {
 			}
 			
 			@Override
-			public void inputChanged(Viewer viewer, Object oldInput, Object newInput){
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+				List<?> list = (List<?>) newInput;
+				if(list == null || list.size() == 0)
+					return;
+				
 				
 			}
 			
@@ -403,28 +384,28 @@ public class WordCloud extends ViewPart {
 		
 		
 		
-		viewer.setLabelProvider(new CustomLabelProvider(cloud.getFont()));
+		viewer.setLabelProvider(labelProvider);
 		
 		viewer.addSelectionChangedListener(new ISelectionChangedListener(){
 			
+			//TODO
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-				System.out.println("Selection: " + selection);
-				
+				IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
+				if(!selection.isEmpty()){
+				System.out.println("Selected: " + ((myWord)selection.getFirstElement()).getWord());
+				}
 			}});
-		
-		
-		
-		
-		
-		
 		
 		
 		cloud.setBounds(0, 0, parent.getBounds().width, parent.getBounds().height);
 		cloud.zoomFit();
 		
-		viewer.setInput(data);
+		viewer.getCloud().setMaxFontSize(100);
+		viewer.getCloud().setMinFontSize(15);
+		
+		
+		viewer.setInput(wordList);
 		
 		// Create the help context id for the viewer's control
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(viewer.getControl(), "cloudioViewtest.viewer");
@@ -434,8 +415,112 @@ public class WordCloud extends ViewPart {
 		contributeToActionBars();
 	}
 
+	
+	private void updateWordList(List<myWord> wordList, HashMap<String, List<String>> clusterHashMap,
+			String clusterPath) {
+		
+		String path = getPath(clusterPath);
+		int count = clusterHashMap.get(path).size();
+		String name = getName(clusterPath);
+		myWord currentWord = new myWord(path, name, count);
+		if(wordList.contains(currentWord)){
+			wordList.remove(currentWord);
+			wordList.add(currentWord);
+		}else{
+			//Word not yet part of the wordCloud. Create word
+			wordList.add(currentWord);
+		}
+		
+		
+	}
 
+	
 
+	/**
+	 * Insert the give clusterPath into the given clusterHashMap.
+	 * Splits the clusterPath into Cluster and Path.
+	 * Then checks if Path is already contained. 
+	 * If yes append cluster.
+	 * If no create key and add cluster.
+	 * 
+	 * @param clusterPath - Filepath containing clusternumber and filepath
+	 * @param clusterHashMap - Hashmap that has key filepath and value: List of all clusters this file is part of.
+	 */
+	private void putInClusterHashMap(String clusterPath,HashMap<String,List<String>> clusterHashMap){
+		String cluster = getCluster(clusterPath);
+		String path = getPath(clusterPath);
+		
+		
+		if(clusterHashMap.containsKey(path)){
+			//increment value of this key
+			List<String> clusterList = clusterHashMap.get(path);
+			clusterList.add(cluster);
+			clusterHashMap.put(path, clusterList);
+			int count = clusterHashMap.get(path).size();
+			checkMaxOccurences(count);
+		} else {
+			//create key with value 1
+			List<String> clusterList = new ArrayList<>();
+			clusterList.add(cluster);
+			clusterHashMap.put(path, clusterList);
+		}
+		
+	
+	}
+	
+	/**
+	 * Checks and sets the MaxOccurences parameter of the labelProvider to 
+	 * determine the weight (wordsize) of the WordCloud words.
+	 * @param count - compare this value against the current maxOccurence value
+	 */
+	private void checkMaxOccurences(int count) {
+		int maxCount = labelProvider.getMaxOccurrences();
+		if(maxCount < count){
+			labelProvider.setMaxOccurrences(count);
+		}
+		
+	}
+
+	/**
+	 * removes leading and trailing whitespaces from string
+	 * splits string by whitespace delimiter
+	 * 
+	 * @param clusterPath - takes String in format "2.2 path/folder/filename"
+	 * @return the filepath "path/folder/filename"
+	 */
+	private String getPath(String clusterPath) {
+		int index = clusterPath.trim().indexOf(" ");
+		String path = clusterPath.substring(index+1);
+		return path;
+	}
+
+	/**
+	 * removes leading and trailing whitespaces from string
+	 * splits string by whitespace delimiter
+	 * 
+	 * @param clusterPath - takes String in format "2.2 path/folder/filename"
+	 * @return the clusternumber "2.2"
+	 */
+	private String getCluster(String clusterPath) {
+		String[] splitStr = clusterPath.trim().split("\\s+");
+		return splitStr[0];
+	}
+	
+	/**
+	 * Inputs are structured like this: "1.2 path/folder/filename.xyz"
+	 * 
+	 * @param clusterPath
+	 * @return return filename.xyz of the given clusterpath
+	 */
+	private String getName(String clusterPath) {
+		
+		int index = clusterPath.lastIndexOf("/");
+		String fileName = clusterPath.substring(index + 1);
+		return fileName;
+	}
+
+	
+	
 	private void hookContextMenu() {
 		MenuManager menuMgr = new MenuManager("#PopupMenu");
 		menuMgr.setRemoveAllWhenShown(true);
