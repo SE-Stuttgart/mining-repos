@@ -296,18 +296,11 @@ public class WordCloud extends ViewPart {
 		
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(selListener);
 		
-		
 		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
 		
 		
-		
-		int maxOccurence = 1;
-		
 		cloud = new TagCloud(parent,SWT.NONE);
 		viewer = new TagCloudViewer(cloud);
-		
-		
-		
 		
 		//Init Word Cloud Data Structures
 		
@@ -317,30 +310,25 @@ public class WordCloud extends ViewPart {
 		List<myWord> wordList = new ArrayList<myWord>();
 		
 		String clusterPath1 = "1.0 path/SRM-Plugin";
-		//String clusterPath2 = "2.0 path/SRM-Plugin";
+		String clusterPath2 = "2.0 path/SRM-Plugin";
 		String clusterPath3 = "2.1 path/sub/Select file in Package Explorer";
 		
 		putInClusterHashMap(clusterPath1, fileInCluster);
 		updateWordList(wordList,fileInCluster,clusterPath1);
-		//putInClusterHashMap(clusterPath2, fileInCluster);
-		//updateWordList(wordList,fileInCluster,clusterPath2);
+		putInClusterHashMap(clusterPath2, fileInCluster);
+		updateWordList(wordList,fileInCluster,clusterPath2);
 		putInClusterHashMap(clusterPath3, fileInCluster);
 		updateWordList(wordList,fileInCluster,clusterPath3);
 		
-		cloud.redraw();
 		
-		
-		
-		
-		//When the WordCloud gets redrawn (Selection of file in Project explorer) this gets executed		
+		//When the selection of file in Project explorer gets changed, this gets executed		
 		EventHandler handler = event -> {
 			if(Communication.control){
-				//System.out.println("LÖSCHE WORDCLOUD DATA");
 				//Removes all files from the WordCloud  word supply.
 				wordList.clear();
 			} else {
 				if (parent.getDisplay().getThread() == Thread.currentThread()){
-					//füge wörter zu wordcloud data hinzu
+					//insert and process all incoming filepaths
 					String currentClusterPath = (String)event.getProperty("file");
 					putInClusterHashMap(currentClusterPath,fileInCluster);
 					updateWordList(wordList, fileInCluster, currentClusterPath);
@@ -358,8 +346,6 @@ public class WordCloud extends ViewPart {
 		ctx.registerService(EventHandler.class, handler, properties);
 		
 		
-		
-		labelProvider.setMaxOccurrences(maxOccurence);
 		viewer.setContentProvider(new IStructuredContentProvider() {
 			
 			@Override
@@ -394,6 +380,8 @@ public class WordCloud extends ViewPart {
 				IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
 				if(!selection.isEmpty()){
 				System.out.println("Selected: " + ((myWord)selection.getFirstElement()).getWord());
+				//Implement WordCloudView -> MessageView dataflow here!
+				
 				}
 			}});
 		
