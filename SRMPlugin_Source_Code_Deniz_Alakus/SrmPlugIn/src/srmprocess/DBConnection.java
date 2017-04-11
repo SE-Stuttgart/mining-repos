@@ -50,13 +50,13 @@ public class DBConnection {
 					"jdbc:h2:"+Platform.getConfigurationLocation().getURL().getPath()
 					+database
 					+";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");
-			System.out.println("jdbc:h2:"+Platform.getConfigurationLocation().getURL().getPath()
+			/*System.out.println("jdbc:h2:"+Platform.getConfigurationLocation().getURL().getPath()
 					+database
-					+";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");
+					+";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");*/
 		} catch (ClassNotFoundException e) {
 			System.out.println("Treiber nicht gefunden");
 		} catch (SQLException e) {
-			System.out.println("Connect nicht möglich");
+			System.out.println("Connect nicht moeglich");
 		}
 	}
 
@@ -614,7 +614,7 @@ public class DBConnection {
 		if (conn != null) {
 			try {
 				statement = conn.createStatement();
-				System.out.println("insert " + outputTableName + " table_______START");
+				//System.out.println("insert " + outputTableName + " table_______START");
 				String sqlSTR = "INSERT INTO " + outputTableName + "(";
 				sqlSTR += "Support, Length, ";
 				for (int y = 1; y <= FPGrowthAlgorithmus.maxSupport; y++) {
@@ -632,9 +632,9 @@ public class DBConnection {
 				}
 				sqlSTR += "'" + cluster.get(c) + "'";
 				sqlSTR += " )";
-				System.out.println("SQL-String: " + sqlSTR );
+				//System.out.println("SQL-String: " + sqlSTR );
 				statement.executeUpdate(sqlSTR);
-				System.out.println("insert " + outputTableName + " table_______END");
+				//System.out.println("insert " + outputTableName + " table_______END");
 			}
 
 			catch (SQLException se) {

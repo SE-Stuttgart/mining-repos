@@ -1,11 +1,11 @@
 package srmplugin.wordcloud;
 
-public class myWord {
+public class MyWord {
 	
 	private String path, word;
 	private int count;
 	
-	public myWord(String path, String word, int count){
+	public MyWord(String path, String word, int count){
 		this.path = path;
 		this.word = word;
 		this.count = count;
@@ -25,8 +25,8 @@ public class myWord {
 	
 	@Override
 	public boolean equals(Object obj){
-		return (obj instanceof myWord) && ((myWord) obj).path.equals(path)
-										   && ((myWord) obj).word.equals(word);
+		return (obj instanceof MyWord) && ((MyWord) obj).path.equals(path)
+										   && ((MyWord) obj).word.equals(word);
 	}
 	
 	

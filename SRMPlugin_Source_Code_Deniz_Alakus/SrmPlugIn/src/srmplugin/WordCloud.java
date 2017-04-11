@@ -1,7 +1,8 @@
 package srmplugin;
 
 import srmplugin.wordcloud.WordCloudLabelProvider;
-import srmplugin.wordcloud.myWord;
+import srmplugin.wordcloud.FilePathToClusterMap;
+import srmplugin.wordcloud.MyWord;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -306,20 +307,16 @@ public class WordCloud extends ViewPart {
 		
 		labelProvider = new WordCloudLabelProvider(cloud.getFont());
 		
-		HashMap<String,List<String>>fileInCluster = new HashMap<String,List<String>>();
-		List<myWord> wordList = new ArrayList<myWord>();
+		FilePathToClusterMap filePathToClusterMap = new FilePathToClusterMap(labelProvider);
 		
 		String clusterPath1 = "1.0 path/SRM-Plugin";
 		String clusterPath2 = "2.0 path/SRM-Plugin";
 		String clusterPath3 = "2.1 path/sub/Select file in Package Explorer";
 		
-		putInClusterHashMap(clusterPath1, fileInCluster);
-		updateWordList(wordList,fileInCluster,clusterPath1);
-		putInClusterHashMap(clusterPath2, fileInCluster);
-		updateWordList(wordList,fileInCluster,clusterPath2);
-		putInClusterHashMap(clusterPath3, fileInCluster);
-		updateWordList(wordList,fileInCluster,clusterPath3);
-		
+		filePathToClusterMap.putInClusterHashMap(clusterPath1);
+		filePathToClusterMap.putInClusterHashMap(clusterPath2);
+		filePathToClusterMap.putInClusterHashMap(clusterPath3);
+		List<MyWord> wordList = filePathToClusterMap.getWordList();
 		
 		//When the selection of file in Project explorer gets changed, this gets executed		
 		EventHandler handler = event -> {
@@ -330,8 +327,7 @@ public class WordCloud extends ViewPart {
 				if (parent.getDisplay().getThread() == Thread.currentThread()){
 					//insert and process all incoming filepaths
 					String currentClusterPath = (String)event.getProperty("file");
-					putInClusterHashMap(currentClusterPath,fileInCluster);
-					updateWordList(wordList, fileInCluster, currentClusterPath);
+					filePathToClusterMap.putInClusterHashMap(currentClusterPath);
 					viewer.setInput(wordList);
 					
 				} else{
@@ -379,7 +375,7 @@ public class WordCloud extends ViewPart {
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
 				if(!selection.isEmpty()){
-				System.out.println("Selected: " + ((myWord)selection.getFirstElement()).getWord());
+				System.out.println("Selected: " + ((MyWord)selection.getFirstElement()).getWord());
 				//Implement WordCloudView -> MessageView dataflow here!
 				
 				}
@@ -403,109 +399,8 @@ public class WordCloud extends ViewPart {
 		contributeToActionBars();
 	}
 
-	
-	private void updateWordList(List<myWord> wordList, HashMap<String, List<String>> clusterHashMap,
-			String clusterPath) {
-		
-		String path = getPath(clusterPath);
-		int count = clusterHashMap.get(path).size();
-		String name = getName(clusterPath);
-		myWord currentWord = new myWord(path, name, count);
-		if(wordList.contains(currentWord)){
-			wordList.remove(currentWord);
-			wordList.add(currentWord);
-		}else{
-			//Word not yet part of the wordCloud. Create word
-			wordList.add(currentWord);
-		}
-		
-		
-	}
 
 	
-
-	/**
-	 * Insert the give clusterPath into the given clusterHashMap.
-	 * Splits the clusterPath into Cluster and Path.
-	 * Then checks if Path is already contained. 
-	 * If yes append cluster.
-	 * If no create key and add cluster.
-	 * 
-	 * @param clusterPath - Filepath containing clusternumber and filepath
-	 * @param clusterHashMap - Hashmap that has key filepath and value: List of all clusters this file is part of.
-	 */
-	private void putInClusterHashMap(String clusterPath,HashMap<String,List<String>> clusterHashMap){
-		String cluster = getCluster(clusterPath);
-		String path = getPath(clusterPath);
-		
-		
-		if(clusterHashMap.containsKey(path)){
-			//increment value of this key
-			List<String> clusterList = clusterHashMap.get(path);
-			clusterList.add(cluster);
-			clusterHashMap.put(path, clusterList);
-			int count = clusterHashMap.get(path).size();
-			checkMaxOccurences(count);
-		} else {
-			//create key with value 1
-			List<String> clusterList = new ArrayList<>();
-			clusterList.add(cluster);
-			clusterHashMap.put(path, clusterList);
-		}
-		
-	
-	}
-	
-	/**
-	 * Checks and sets the MaxOccurences parameter of the labelProvider to 
-	 * determine the weight (wordsize) of the WordCloud words.
-	 * @param count - compare this value against the current maxOccurence value
-	 */
-	private void checkMaxOccurences(int count) {
-		int maxCount = labelProvider.getMaxOccurrences();
-		if(maxCount < count){
-			labelProvider.setMaxOccurrences(count);
-		}
-		
-	}
-
-	/**
-	 * removes leading and trailing whitespaces from string
-	 * splits string by whitespace delimiter
-	 * 
-	 * @param clusterPath - takes String in format "2.2 path/folder/filename"
-	 * @return the filepath "path/folder/filename"
-	 */
-	private String getPath(String clusterPath) {
-		int index = clusterPath.trim().indexOf(" ");
-		String path = clusterPath.substring(index+1);
-		return path;
-	}
-
-	/**
-	 * removes leading and trailing whitespaces from string
-	 * splits string by whitespace delimiter
-	 * 
-	 * @param clusterPath - takes String in format "2.2 path/folder/filename"
-	 * @return the clusternumber "2.2"
-	 */
-	private String getCluster(String clusterPath) {
-		String[] splitStr = clusterPath.trim().split("\\s+");
-		return splitStr[0];
-	}
-	
-	/**
-	 * Inputs are structured like this: "1.2 path/folder/filename.xyz"
-	 * 
-	 * @param clusterPath
-	 * @return return filename.xyz of the given clusterpath
-	 */
-	private String getName(String clusterPath) {
-		
-		int index = clusterPath.lastIndexOf("/");
-		String fileName = clusterPath.substring(index + 1);
-		return fileName;
-	}
 
 	
 	

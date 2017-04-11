@@ -20,12 +20,12 @@ public class WordCloudLabelProvider extends BaseLabelProvider implements ICloudL
 
 	@Override
 	public String getLabel(Object element) {
-		return ((myWord) element).getWord();
+		return ((MyWord) element).getWord();
 	}
 
 	@Override
 	public double getWeight(Object element) {
-		return ((myWord) element).getCount() / maxOccurrences;
+		return ((MyWord) element).getCount() / maxOccurrences;
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class WordCloudLabelProvider extends BaseLabelProvider implements ICloudL
 
 	@Override
 	public String getToolTip(Object element) {
-		return ((myWord) element).getPath();
+		return ((MyWord) element).getPath();
 	}
 	
 	public void setMaxOccurrences(int occurrences) {
