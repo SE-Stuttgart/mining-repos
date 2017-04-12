@@ -413,7 +413,7 @@ public class WordCloud extends ViewPart {
 						// here the commit Id and Commit messages are 
 						// being sent to the Commit Information tab of Message View.
 						
-						// TODO remove duplicates, sort by #of same ID
+						// TODO remove duplicates, sort by #of same ID.
 						for(Iterator<Integer> iter = listOfClustersInt.iterator();iter.hasNext();){
 							
 							ArrayList<String[]> commitdata = new ArrayList<>();
