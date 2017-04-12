@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Map.Entry;
@@ -333,6 +334,7 @@ public class WordCloud extends ViewPart {
 		EventHandler handler = event -> {
 			if (Communication.control) {
 				// Removes all files from the WordCloud word supply.
+				filePathToClusterMap.getMap().clear();
 				wordList.clear();
 			} else {
 				if (parent.getDisplay().getThread() == Thread.currentThread()) {
@@ -381,14 +383,123 @@ public class WordCloud extends ViewPart {
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
 			// TODO
+			
+			//If a word of the WordCloud is selected, get the path from the MyWord tooltip.
+			//Make a Look up in the ClusterHashMap for this filepath.
+			//Send all clusters this file is part of to the message View.
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
 				if (!selection.isEmpty()) {
-					System.out.println("Selected: " + ((MyWord) selection.getFirstElement()).getWord());
+					printSelection(selection);
+					String path = ((MyWord) selection.getFirstElement()).getPath();
+					if (DBConnection.sqlprocedureInput.size() != 0) {
+						
+						// find all Cluster this file is part of
+						List<String> clusterList = getClustersOfThisPath(filePathToClusterMap, path);
+												
+						//get only the leading cluster numbers
+						List<Integer> listOfClustersInt = getLeadingClusterNumberAsIntList(clusterList);
+						
+						//Send Control Event to inform other views of incoming message
+						sendControlEvent();
+						
+						// Send Information  to Path Information Tab
+						// TODO
+						
+						//Send Information to Commit Information Tab of Message View
+
+
+						// here the commit Id and Commit messages are 
+						// being sent to the Commit Information tab of Message View.
+						
+						// TODO remove duplicates, sort by #of same ID
+						for(Iterator<Integer> iter = listOfClustersInt.iterator();iter.hasNext();){
+							
+							ArrayList<String[]> commitdata = new ArrayList<>();
+							
+							appendMessagesOfCluster(commitdata,iter.next());
+							
+							communication.ViewCommunication("commitdata",
+									commitdata,
+									"viewcommunicationcommitdata/syncEvent");
+						}
+						
+						
+						//Send Information to Issue Information Tab of Message View
+						// TODO
+						
+						
+					}
+					
+					
 					// Implement WordCloudView -> MessageView dataflow here!
 
 				}
+			}
+			/**
+			 * Appends all Commit Messages belonging to a Cluster specified by clusterNum to
+			 * the String List commitdata.
+			 * @param commitdata
+			 * @param clusterNum
+			 */
+			private void appendMessagesOfCluster(ArrayList<String[]> commitdata, Integer clusterNum) {
+				for (int i = 2; i < Integer.parseInt(Process.ClusterErgebnis.get(clusterNum).get(0)) + 2; i++) {
+					commitdata.add(new String[] {
+							Process.ClusterErgebnis.get(clusterNum).get(i),
+							dataBaseCon.ReadCommitMessage(Process.ClusterErgebnis.get(clusterNum).get(i))
+					});
+				}
+			}
+
+			/**
+			 * Sends Control Event to Commit/Issue/Path Information Tabs
+			 * so they can clear their data.
+			 */
+			private void sendControlEvent() {
+				Communication.control = true;
+				
+				// Hier werden Control Event zum Commit Information Tab
+				// des Message Views gesendet.
+				communication.ViewCommunication("commitdata", communication.view("Control"),
+						"viewcommunicationcommitdata/syncEvent");
+				// Hier werden Control Event zum Issue Information Tab
+				// des Message Views gesendet.
+				communication.ViewCommunication("IssueId", communication.view("Control"),
+						"viewcommunicationIssueId/syncEvent");
+				communication.ViewCommunication("Issuedescription", communication.view("Control"),
+						"viewcommunicationIssuedescription/syncEvent");
+				communication.ViewCommunication("Issuetype", communication.view("Control"),
+						"viewcommunicationIssuetype/syncEvent");
+				// Hier werden Control Event zum Path Information Tab
+				// des Message Views gesendet.
+				communication.ViewCommunication("Pathdescription",
+						communication.view(communication.view("Control")),
+						"viewcommunicationdocuPathdescription/syncEvent");
+				communication.ViewCommunication("Path", communication.view(communication.view("Control")),
+						"viewcommunicationdocuPath/syncEvent");
+				
+				Communication.control = false;
+			}
+
+			private List<String> getClustersOfThisPath(FilePathToClusterMap filePathToClusterMap, String path) {
+				List<String> clusterList = new ArrayList<String>();
+				HashMap<String,List<String>> clusterHashMap = filePathToClusterMap.getMap();
+				if(clusterHashMap.containsKey(path)){
+					clusterList = clusterHashMap.get(path);
+				}
+				return clusterList;
+			}
+
+			private List<Integer> getLeadingClusterNumberAsIntList(List<String> clusterList) {
+				List<Integer> listOfClustersInt = new ArrayList<Integer>();
+				for(Iterator<String> iter = clusterList.iterator(); iter.hasNext();){
+					String s = iter.next();
+					s = s.substring(0, s.indexOf("."));
+					int a = Integer.parseInt(s) - 1;
+					listOfClustersInt.add(a);							
+				}
+				return listOfClustersInt;
 			}
 		});
 
@@ -406,6 +517,21 @@ public class WordCloud extends ViewPart {
 		makeActions();
 		hookContextMenu();
 		contributeToActionBars();
+	}
+
+	/**
+	 * DEBUG Console Output Method to print selection contents
+	 * @param selection
+	 */
+	protected void printSelection(IStructuredSelection selection) {
+		for(Iterator<Object> iter = selection.iterator(); iter.hasNext();){
+			Object obj = iter.next();
+			System.out.println("Selected Word: " + ((MyWord) obj).getWord() + 
+					", Path: " + ((MyWord) obj).getPath() + ", Count: " + ((MyWord) obj).getCount());
+			
+		}
+		
+		
 	}
 
 	private void hookContextMenu() {

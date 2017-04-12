@@ -312,9 +312,10 @@ public class CoupledChanges extends ViewPart {
 
 						// find Clusternummer im String
 						String s = list.getItem(list.getSelectionIndex());
+						System.out.println("CoupledChanges string s before : " + s);
 						s = s.substring(0, s.indexOf("."));
 						int a = Integer.parseInt(s) - 1;
-
+						
 						Communication.control = true;
 						// Hier werden Control Event zum Commit Information Tab
 						// des Message Views gesendet.
@@ -373,9 +374,11 @@ public class CoupledChanges extends ViewPart {
 							}
 
 						}
-						
+												
+						// here the commit Id and Commit messages are 
+						// being sent to the Commit Information tab of Message View.
 						ArrayList<String[]> commitdata = new ArrayList<>();
-						
+											
 						for (int i = 2; i < Integer.parseInt(Process.ClusterErgebnis.get(a).get(0)) + 2; i++) {
 							commitdata.add(new String[] {
 									Process.ClusterErgebnis.get(a).get(i),
