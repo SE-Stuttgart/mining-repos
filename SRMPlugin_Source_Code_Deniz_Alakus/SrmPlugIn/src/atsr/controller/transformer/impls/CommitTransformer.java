@@ -11,9 +11,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Observer;
+import java.util.Set;
 
 import javax.swing.JOptionPane;
 
@@ -87,7 +89,7 @@ public class CommitTransformer extends Transformer {
 				// files still existing in the git repository
 				if (ATSRPage.getIgnoreOldFiles()) {
 					currentExistingFiles = getAllCurrentFiles(this.getPath(), currentExistingFiles);
-					//remove system specific basepath
+					// remove system specific basepath
 					currentExistingFiles = getProjectSpecificFiles(this.getPath(), currentExistingFiles);
 				}
 
@@ -103,14 +105,13 @@ public class CommitTransformer extends Transformer {
 						if (block) {
 							if (row.length() == 0) {
 
-								// TODO remove files that are not part of the
-								// current project.
+								System.out.println("WITH OLD FILES: " + files);
 								if (ATSRPage.getIgnoreOldFiles()) {
-									removeOldDeletedFiles(files);
+									files = removeOldDeletedFiles(files, currentExistingFiles);
 								}
 
-								// System.out.println(files);
-								// System.out.println(currentExistingFiles);
+								System.out.println("ONLY NEW FILES: " + files);
+								
 								commit = createCommit(header, files);
 								if (commit != null) {
 									commits.add(commit);
@@ -182,37 +183,48 @@ public class CommitTransformer extends Transformer {
 			}
 
 		}
-		
+
 		return currentFiles;
 
 	}
-	
+
 	private List<File> getProjectSpecificFiles(String basePath, List<File> systemFiles) {
-		
+
 		List<File> projectFiles = new ArrayList<File>();
-		
-		for(File file : systemFiles){
+
+		for (File file : systemFiles) {
 			String systemPath = file.getPath();
-			String projectPath = systemPath.substring(basePath.length()+1);
+			String projectPath = systemPath.substring(basePath.length() + 1);
 			projectFiles.add(new File(projectPath));
 		}
-		
+
 		return projectFiles;
 	}
-	
 
 	/**
-	 * Compares the files of the current commit against the files that are
-	 * currently in the project folder.
+	 * Compares the files against other files and remove from first list all
+	 * files that are not part of the second list.
 	 * 
-	 * @param files
+	 * @param filesToRemoveFrom
 	 *            - list of files in the current commit
+	 * @param filesToCompareAgainst
+	 * @return 
 	 */
-	private void removeOldDeletedFiles(List<File> files) {
+	private List<File> removeOldDeletedFiles(List<File> filesToRemoveFrom, List<File> filesToCompareAgainst) {
 		// TODO Auto-generated method stub
-		System.out.println("CheckBox True");
-		System.out.println(this.getPath());
-
+		
+		//List to SET for easier handling
+		Set<File> setA = new HashSet<File>(filesToRemoveFrom);
+		Set<File> setB = new HashSet<File>(filesToCompareAgainst);
+		
+		//SET OPERATION
+		Set<File> intersection = new HashSet<File>(setA);
+		intersection.retainAll(setB);
+		
+		//SET TO LIST
+		
+		List<File> onlyCurrentFiles = new ArrayList<File>(intersection);
+		return onlyCurrentFiles;
 	}
 
 	/**
