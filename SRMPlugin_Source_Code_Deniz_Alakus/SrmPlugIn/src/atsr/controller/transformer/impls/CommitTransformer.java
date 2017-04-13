@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import atsr.controller.transformer.Transformer;
 import atsr.model.Commit;
 import atsr.model.Settings;
+import srmplugin.wizard.ATSRPage;
 
 /**
  * Implementation of the transformer to transform commit (repository log data)
@@ -42,18 +43,20 @@ public class CommitTransformer extends Transformer {
 	 * @param obs
 	 *            - Observer to notify progress
 	 */
-	public CommitTransformer(String path, Settings settings, Observer obs, IProgressMonitor pmonitor) throws SQLException {
+	public CommitTransformer(String path, Settings settings, Observer obs, IProgressMonitor pmonitor)
+			throws SQLException {
 		super(path, settings, obs, pmonitor);
 	}
 
 	/**
 	 * Executive function
 	 */
-	//@Override
+	// @Override
 	public void run() {
 		Process process;
 		try {
-			ProcessBuilder pb = new ProcessBuilder(this.getSettings().getGitPath(), "log", "--pretty=format:%h#%an#%ad#%s", "--name-only");
+			ProcessBuilder pb = new ProcessBuilder(this.getSettings().getGitPath(), "log",
+					"--pretty=format:%h#%an#%ad#%s", "--name-only");
 			pb.directory(new File(this.getPath()));
 			process = pb.start();
 			InputStream cmdin = process.getInputStream();
@@ -65,10 +68,11 @@ public class CommitTransformer extends Transformer {
 			while ((line = input.readLine()) != null) {
 				linesList.add(line);
 			}
-			
+
 			input.close();
 			cmdin.close();
 			
+			List<File> currentExistingFiles = new ArrayList<File>();
 
 			if (linesList.size() > 0) {
 
@@ -78,9 +82,15 @@ public class CommitTransformer extends Transformer {
 				String header = null;
 				Commit commit = null;
 				boolean block = false;
-				
-				
-				// find blocks of commits and their files and compile the information
+
+				// If we ignore old deleted files, compute a list of all current
+				// files still existing in the git repository
+				if (ATSRPage.getIgnoreOldFiles()) {
+					currentExistingFiles = getAllCurrentFiles(this.getPath(),currentExistingFiles);
+				}
+
+				// find blocks of commits and their files and compile the
+				// information
 				for (String row : linesList) {
 					if (!block && row.contains("#")) {
 						header = row;
@@ -90,6 +100,15 @@ public class CommitTransformer extends Transformer {
 					} else {
 						if (block) {
 							if (row.length() == 0) {
+
+								// TODO remove files that are not part of the
+								// current project.
+								if (ATSRPage.getIgnoreOldFiles()) {
+									removeOldDeletedFiles(files);
+								}
+
+								System.out.println(files);
+								System.out.println(currentExistingFiles);
 								commit = createCommit(header, files);
 								if (commit != null) {
 									commits.add(commit);
@@ -100,7 +119,7 @@ public class CommitTransformer extends Transformer {
 								block = false;
 							} else {
 								files.add(new File(row));
-								
+
 							}
 						} else {
 							continue;
@@ -118,8 +137,8 @@ public class CommitTransformer extends Transformer {
 			} else {
 				// Error handling wrong folder
 				JOptionPane.showMessageDialog(null,
-						"The selected folder is not a Git-Repository or\n " + "the git folder is not correct!", "Repository Error",
-						JOptionPane.ERROR_MESSAGE);
+						"The selected folder is not a Git-Repository or\n " + "the git folder is not correct!",
+						"Repository Error", JOptionPane.ERROR_MESSAGE);
 				this.notifyProgress(0);
 			}
 
@@ -137,6 +156,46 @@ public class CommitTransformer extends Transformer {
 			this.notifyProgress(0);
 			e.printStackTrace();
 		}
+
+	}
+
+	/**
+	 * Generates a list of files that are inside the specified folder
+	 * 
+	 * @param path
+	 *            - Path to the root folder. Search recursively from there on.
+	 * @return - List of files currently existing in the folder and all
+	 *         subfolders.
+	 */
+	private List<File> getAllCurrentFiles(String path, List<File> currentFiles) {
+		File directory = new File(path);
+
+		// get all files from the directory
+		File[] filesArray = directory.listFiles();
+		for (File file : filesArray) {
+			if (file.isFile()) {
+				currentFiles.add(file);
+			} else if (file.isDirectory()) {
+				getAllCurrentFiles(file.getAbsolutePath(), currentFiles);
+			}
+
+		}
+
+		return currentFiles;
+
+	}
+
+	/**
+	 * Compares the files of the current commit against the files that are
+	 * currently in the project folder.
+	 * 
+	 * @param files
+	 *            - list of files in the current commit
+	 */
+	private void removeOldDeletedFiles(List<File> files) {
+		// TODO Auto-generated method stub
+		System.out.println("CheckBox True");
+		System.out.println(this.getPath());
 
 	}
 

@@ -43,6 +43,8 @@ public class ATSRPage extends WizardPage implements Observer {
 	private Text docu_path_field;
 	private Text database_field;
 	private Text git_field;
+	
+	private static boolean ignoreOldFiles = true;
 
 	protected ATSRPage() {
 		super("ATSR Settings","Repository Transformation",null);
@@ -202,6 +204,15 @@ public class ATSRPage extends WizardPage implements Observer {
 		Button ignoreButton  = new Button(repo, SWT.CHECK);
 		ignoreButton.setText("Ignore deleted files");
 		ignoreButton.setSelection(true); //by default we want to ignore deleted files, that are not part of the current project anymore.
+		
+		//If user changes Checkbox, this extracts current checkbox status. Status will be used for transformation.
+		ignoreButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent event){
+				Button button = (Button) event.getSource();
+				ignoreOldFiles = button.getSelection();
+			}
+		});
 		
 		Button btnTransform_1 = new Button(issue, SWT.NONE);
 		btnTransform_1.setLayoutData(gd);
@@ -404,5 +415,10 @@ public class ATSRPage extends WizardPage implements Observer {
 			}
 		}
 	}
+
+	public static boolean getIgnoreOldFiles() {
+		return ignoreOldFiles;
+	}
+
 
 }
