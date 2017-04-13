@@ -199,6 +199,10 @@ public class ATSRPage extends WizardPage implements Observer {
 		btnTransform.setText("Transform");
 		btnTransform.addSelectionListener(new CommitTransformListener());
 		
+		Button ignoreButton  = new Button(repo, SWT.CHECK);
+		ignoreButton.setText("Ignore deleted files");
+		ignoreButton.setSelection(true); //by default we want to ignore deleted files, that are not part of the current project anymore.
+		
 		Button btnTransform_1 = new Button(issue, SWT.NONE);
 		btnTransform_1.setLayoutData(gd);
 		btnTransform_1.setText("Transform");

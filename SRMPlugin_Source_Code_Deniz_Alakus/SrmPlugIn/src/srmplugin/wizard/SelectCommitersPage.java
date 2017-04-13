@@ -114,9 +114,6 @@ public class SelectCommitersPage extends WizardPage {
 		t.setHeaderVisible(true);
 		t.setLinesVisible(true);
 		
-		Button button  = new Button(composite, SWT.CHECK);
-	    button.setText("Show only current files");
-		
 		setControl(composite);
 		
 	}

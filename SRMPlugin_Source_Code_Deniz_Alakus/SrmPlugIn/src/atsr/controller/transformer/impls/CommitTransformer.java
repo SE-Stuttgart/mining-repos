@@ -93,11 +93,14 @@ public class CommitTransformer extends Transformer {
 								commit = createCommit(header, files);
 								if (commit != null) {
 									commits.add(commit);
+									// TODO delete me
+									System.out.println(commit.getFiles());
 								}
 								files.clear();
 								block = false;
 							} else {
 								files.add(new File(row));
+								
 							}
 						} else {
 							continue;
