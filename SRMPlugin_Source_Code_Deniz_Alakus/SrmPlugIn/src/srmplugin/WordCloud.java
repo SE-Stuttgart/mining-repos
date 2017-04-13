@@ -6,11 +6,13 @@ import srmplugin.wordcloud.MyWord;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Map.Entry;
 
@@ -105,7 +107,7 @@ public class WordCloud extends ViewPart {
 	public String workspaceName;
 	public String projectName;
 	public String fileName;
-	
+
 	private String endOfTransmissionString = "-End of Transmission-";
 
 	/*
@@ -238,7 +240,8 @@ public class WordCloud extends ViewPart {
 						index++;
 					}
 				}
-				// Nachdem alle Files eines Clusters gesendet wurden, wird eine leere Zeile in
+				// Nachdem alle Files eines Clusters gesendet wurden, wird eine
+				// leere Zeile in
 				// die Coupled Changes View eingefuegt.
 				communication.ViewCommunication("file", communication.view(" "), "viewcommunicationfile/syncEvent");
 				// In Word CLoud View angezeigte Cluster/File Gruppe werden
@@ -246,11 +249,13 @@ public class WordCloud extends ViewPart {
 				dataBaseCon.WriteIntoOutputTable("Clusteroutputtable", Process.ClusterErgebnis.get(s));
 
 			}
-			
+
 			// Nachdem alle Cluster an Word Cloud View gesendet wurden
-			// wird jetzt die ein endOfTransmissionString gesendet der signalisiert, dass die WordCloud aktualisiert werden muss.
-			communication.ViewCommunication("file", communication.view(endOfTransmissionString), "viewcommunicationfile/syncEvent");
-			
+			// wird jetzt die ein endOfTransmissionString gesendet der
+			// signalisiert, dass die WordCloud aktualisiert werden muss.
+			communication.ViewCommunication("file", communication.view(endOfTransmissionString),
+					"viewcommunicationfile/syncEvent");
+
 			if (perspective.equals("SrmPlugIn.perspective2")) {
 				// Klassifikationsergenisse werden zuerst sortiert.
 				commitsort = process.sortValue();
@@ -292,7 +297,7 @@ public class WordCloud extends ViewPart {
 	 */
 	public WordCloud() {
 	}
-	
+
 	/**
 	 * This is a callback that will allow us to create the viewer and initialize
 	 * it.
@@ -340,10 +345,10 @@ public class WordCloud extends ViewPart {
 				if (parent.getDisplay().getThread() == Thread.currentThread()) {
 					// insert and process all incoming filepaths
 					String currentClusterPath = (String) event.getProperty("file");
-					
+
 					if (currentClusterPath.equals(endOfTransmissionString)) {
 						viewer.setInput(wordList);
-					} else{
+					} else {
 						filePathToClusterMap.putInClusterHashMap(currentClusterPath);
 					}
 
@@ -383,10 +388,11 @@ public class WordCloud extends ViewPart {
 		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
 
 			// TODO
-			
-			//If a word of the WordCloud is selected, get the path from the MyWord tooltip.
-			//Make a Look up in the ClusterHashMap for this filepath.
-			//Send all clusters this file is part of to the message View.
+
+			// If a word of the WordCloud is selected, get the path from the
+			// MyWord tooltip.
+			// Make a Look up in the ClusterHashMap for this filepath.
+			// Send all clusters this file is part of to the message View.
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
@@ -394,71 +400,124 @@ public class WordCloud extends ViewPart {
 					printSelection(selection);
 					String path = ((MyWord) selection.getFirstElement()).getPath();
 					if (DBConnection.sqlprocedureInput.size() != 0) {
-						
+
 						// find all Cluster this file is part of
 						List<String> clusterList = getClustersOfThisPath(filePathToClusterMap, path);
-												
-						//get only the leading cluster numbers
+
+						// get only the leading cluster numbers
 						List<Integer> listOfClustersInt = getLeadingClusterNumberAsIntList(clusterList);
-						
-						//Send Control Event to inform other views of incoming message
+
+						// Send Control Event to inform other views of incoming
+						// message
 						sendControlEvent();
-						
-						// Send Information  to Path Information Tab
+
+						// Send Information to Path Information Tab
 						// TODO
-						
-						//Send Information to Commit Information Tab of Message View
 
+						// Send Information to Commit Information Tab of Message
+						// View
 
-						// here the commit Id and Commit messages are 
-						// being sent to the Commit Information tab of Message View.
-						
+						// here the commit Id and Commit messages are
+						// being sent to the Commit Information tab of Message
+						// View.
+
 						// TODO remove duplicates, sort by #of same ID.
-						for(Iterator<Integer> iter = listOfClustersInt.iterator();iter.hasNext();){
-							
-							ArrayList<String[]> commitdata = new ArrayList<>();
-							
-							appendMessagesOfCluster(commitdata,iter.next());
-							
-							communication.ViewCommunication("commitdata",
-									commitdata,
-									"viewcommunicationcommitdata/syncEvent");
+
+						// Init data structures for sorting, eliminating
+						// duplicates and sending Messages to MessageView
+						HashMap<MyWord, Integer> commitCountHashMap = new HashMap<MyWord, Integer>();
+						ArrayList<String[]> commitdata = new ArrayList<>();
+
+						// Iterate over all clusternumbers
+						for (Iterator<Integer> iter = listOfClustersInt.iterator(); iter.hasNext();) {
+							// Current Clusternumber
+							Integer clusterNum = iter.next();
+
+							// Process all commit messages of the current
+							// Clusternumber.
+							for (int i = 2; i < Integer.parseInt(Process.ClusterErgebnis.get(clusterNum).get(0))
+									+ 2; i++) {
+
+								// Put in HashMap and count occurences. Will be
+								// used later to eliminate duplicates and sort
+								// by relevance.
+								
+								//Using MyWord class because it is immutable. A string array would not work because of mutability of arrays.
+								//This word contains: commitID, CommitMessage, occurence value 1
+								String id = Process.ClusterErgebnis.get(clusterNum).get(i);
+								String message = dataBaseCon.ReadCommitMessage(Process.ClusterErgebnis.get(clusterNum).get(i));
+								MyWord commitIdAndMessage = new MyWord(id,message,1);
+								
+								if (commitCountHashMap.containsKey(commitIdAndMessage)) {
+									// If already in Map, increment occurence
+									// value.
+									int occ = commitCountHashMap.get(commitIdAndMessage);
+									commitCountHashMap.put(commitIdAndMessage,
+											occ + 1);
+								} else {
+									// If not already in Map, put it in with
+									// occurence value == 1.
+									commitCountHashMap.put(commitIdAndMessage, 1);
+								}
+							}
 						}
 						
 						
-						//Send Information to Issue Information Tab of Message View
-						// TODO
+						//HashMap has no duplicates. Still need to sort by value.
 						
+						//Sort
+						Object[] objectArray = commitCountHashMap.entrySet().toArray();
 						
+						Arrays.sort(objectArray, new Comparator(){
+
+							@Override
+							public int compare(Object o1, Object o2) {
+								return ((Map.Entry<MyWord, Integer>) o2).getValue().compareTo(((Map.Entry<MyWord, Integer>) o1).getValue());
+							}
+							
+						});
+						
+						//Send Data to Message View ordered by number of occunrences descending.
+						for(Object o : objectArray){
+							
+							String id = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getPath();
+							String message = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getWord();
+							System.out.println(id + " : " + message + " : " + ((Map.Entry<MyWord, Integer>) o).getValue());
+							
+							commitdata.add(new String[] {id, message});
+							
+						}
+						communication.ViewCommunication("commitdata", commitdata,
+								"viewcommunicationcommitdata/syncEvent");
+
 					}
-					
-					
+
 					// Implement WordCloudView -> MessageView dataflow here!
 
 				}
 			}
+
 			/**
-			 * Appends all Commit Messages belonging to a Cluster specified by clusterNum to
-			 * the String List commitdata.
+			 * Appends all Commit Messages belonging to a Cluster specified by
+			 * clusterNum to the String List commitdata.
+			 * 
 			 * @param commitdata
 			 * @param clusterNum
 			 */
 			private void appendMessagesOfCluster(ArrayList<String[]> commitdata, Integer clusterNum) {
 				for (int i = 2; i < Integer.parseInt(Process.ClusterErgebnis.get(clusterNum).get(0)) + 2; i++) {
-					commitdata.add(new String[] {
-							Process.ClusterErgebnis.get(clusterNum).get(i),
-							dataBaseCon.ReadCommitMessage(Process.ClusterErgebnis.get(clusterNum).get(i))
-					});
+					commitdata.add(new String[] { Process.ClusterErgebnis.get(clusterNum).get(i),
+							dataBaseCon.ReadCommitMessage(Process.ClusterErgebnis.get(clusterNum).get(i)) });
 				}
 			}
 
 			/**
-			 * Sends Control Event to Commit/Issue/Path Information Tabs
-			 * so they can clear their data.
+			 * Sends Control Event to Commit/Issue/Path Information Tabs so they
+			 * can clear their data.
 			 */
 			private void sendControlEvent() {
 				Communication.control = true;
-				
+
 				// Hier werden Control Event zum Commit Information Tab
 				// des Message Views gesendet.
 				communication.ViewCommunication("commitdata", communication.view("Control"),
@@ -473,19 +532,18 @@ public class WordCloud extends ViewPart {
 						"viewcommunicationIssuetype/syncEvent");
 				// Hier werden Control Event zum Path Information Tab
 				// des Message Views gesendet.
-				communication.ViewCommunication("Pathdescription",
-						communication.view(communication.view("Control")),
+				communication.ViewCommunication("Pathdescription", communication.view(communication.view("Control")),
 						"viewcommunicationdocuPathdescription/syncEvent");
 				communication.ViewCommunication("Path", communication.view(communication.view("Control")),
 						"viewcommunicationdocuPath/syncEvent");
-				
+
 				Communication.control = false;
 			}
 
 			private List<String> getClustersOfThisPath(FilePathToClusterMap filePathToClusterMap, String path) {
 				List<String> clusterList = new ArrayList<String>();
-				HashMap<String,List<String>> clusterHashMap = filePathToClusterMap.getMap();
-				if(clusterHashMap.containsKey(path)){
+				HashMap<String, List<String>> clusterHashMap = filePathToClusterMap.getMap();
+				if (clusterHashMap.containsKey(path)) {
 					clusterList = clusterHashMap.get(path);
 				}
 				return clusterList;
@@ -493,11 +551,11 @@ public class WordCloud extends ViewPart {
 
 			private List<Integer> getLeadingClusterNumberAsIntList(List<String> clusterList) {
 				List<Integer> listOfClustersInt = new ArrayList<Integer>();
-				for(Iterator<String> iter = clusterList.iterator(); iter.hasNext();){
+				for (Iterator<String> iter = clusterList.iterator(); iter.hasNext();) {
 					String s = iter.next();
 					s = s.substring(0, s.indexOf("."));
 					int a = Integer.parseInt(s) - 1;
-					listOfClustersInt.add(a);							
+					listOfClustersInt.add(a);
 				}
 				return listOfClustersInt;
 			}
@@ -521,17 +579,17 @@ public class WordCloud extends ViewPart {
 
 	/**
 	 * DEBUG Console Output Method to print selection contents
+	 * 
 	 * @param selection
 	 */
 	protected void printSelection(IStructuredSelection selection) {
-		for(Iterator<Object> iter = selection.iterator(); iter.hasNext();){
+		for (Iterator<Object> iter = selection.iterator(); iter.hasNext();) {
 			Object obj = iter.next();
-			System.out.println("Selected Word: " + ((MyWord) obj).getWord() + 
-					", Path: " + ((MyWord) obj).getPath() + ", Count: " + ((MyWord) obj).getCount());
-			
+			System.out.println("Selected Word: " + ((MyWord) obj).getWord() + ", Path: " + ((MyWord) obj).getPath()
+					+ ", Count: " + ((MyWord) obj).getCount());
+
 		}
-		
-		
+
 	}
 
 	private void hookContextMenu() {

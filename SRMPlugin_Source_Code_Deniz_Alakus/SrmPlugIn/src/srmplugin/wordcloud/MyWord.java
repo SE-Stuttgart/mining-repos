@@ -1,9 +1,9 @@
 package srmplugin.wordcloud;
 
-public class MyWord {
+public final class MyWord {
 	
-	private String path, word;
-	private int count;
+	private final String path, word;
+	private final int count;
 	
 	public MyWord(String path, String word, int count){
 		this.path = path;
@@ -29,6 +29,11 @@ public class MyWord {
 										   && ((MyWord) obj).word.equals(word);
 	}
 	
+	@Override
+	public int hashCode(){
+		return path.hashCode() ^ word.hashCode();
+		
+	}
 	
 
 }
