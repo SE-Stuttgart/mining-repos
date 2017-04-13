@@ -571,7 +571,7 @@ public class DBConnection {
 
 	
 	// this method is used to create the Cluster- und outputtable in the Datenbank
-	/*
+	/**
 	 * After the Frequent-Itemset-Analysis by the FPGrowthAlgorithm terminated,
 	 * this function creates the Outputtable.
 	 * Old Outputtables are being overwritten, thus only containing up-to-date information.

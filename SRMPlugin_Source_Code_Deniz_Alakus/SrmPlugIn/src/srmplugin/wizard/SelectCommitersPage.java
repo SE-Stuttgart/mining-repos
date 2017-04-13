@@ -9,6 +9,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Scale;
@@ -112,6 +113,9 @@ public class SelectCommitersPage extends WizardPage {
 		
 		t.setHeaderVisible(true);
 		t.setLinesVisible(true);
+		
+		Button button  = new Button(composite, SWT.CHECK);
+	    button.setText("Show only current files");
 		
 		setControl(composite);
 		
