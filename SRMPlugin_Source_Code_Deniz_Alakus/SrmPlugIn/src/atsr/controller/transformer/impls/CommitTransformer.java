@@ -71,7 +71,7 @@ public class CommitTransformer extends Transformer {
 
 			input.close();
 			cmdin.close();
-			
+
 			List<File> currentExistingFiles = new ArrayList<File>();
 
 			if (linesList.size() > 0) {
@@ -86,7 +86,9 @@ public class CommitTransformer extends Transformer {
 				// If we ignore old deleted files, compute a list of all current
 				// files still existing in the git repository
 				if (ATSRPage.getIgnoreOldFiles()) {
-					currentExistingFiles = getAllCurrentFiles(this.getPath(),currentExistingFiles);
+					currentExistingFiles = getAllCurrentFiles(this.getPath(), currentExistingFiles);
+					//remove system specific basepath
+					currentExistingFiles = getProjectSpecificFiles(this.getPath(), currentExistingFiles);
 				}
 
 				// find blocks of commits and their files and compile the
@@ -107,8 +109,8 @@ public class CommitTransformer extends Transformer {
 									removeOldDeletedFiles(files);
 								}
 
-								System.out.println(files);
-								System.out.println(currentExistingFiles);
+								// System.out.println(files);
+								// System.out.println(currentExistingFiles);
 								commit = createCommit(header, files);
 								if (commit != null) {
 									commits.add(commit);
@@ -180,10 +182,24 @@ public class CommitTransformer extends Transformer {
 			}
 
 		}
-
+		
 		return currentFiles;
 
 	}
+	
+	private List<File> getProjectSpecificFiles(String basePath, List<File> systemFiles) {
+		
+		List<File> projectFiles = new ArrayList<File>();
+		
+		for(File file : systemFiles){
+			String systemPath = file.getPath();
+			String projectPath = systemPath.substring(basePath.length()+1);
+			projectFiles.add(new File(projectPath));
+		}
+		
+		return projectFiles;
+	}
+	
 
 	/**
 	 * Compares the files of the current commit against the files that are
