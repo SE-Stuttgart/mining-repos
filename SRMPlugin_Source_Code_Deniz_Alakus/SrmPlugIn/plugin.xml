@@ -22,26 +22,37 @@
    
    
    <extension
-         point="org.eclipse.ui.views">
+   		point="org.eclipse.ui.views">
+      <category
+         	id="srmpluginviews"
+         	name="SRM Plug-in"/>         
       <view
-            name="%view.name"
+            category="srmpluginviews"
             class="srmplugin.CoupledChanges"
-            id="SrmPlugIn.CoupledChanges">
+            icon="icons/chain.png"
+            id="SrmPlugIn.CoupledChanges"
+            name="%view.name"
+            restorable="true">
       </view>
       <view
+            category="srmpluginviews"
             class="srmplugin.CommittedChanges"
             id="SrmPlugIn.CommittedChanges"
             name="%view.name.0"
             restorable="true">
       </view>
       <view
+            category="srmpluginviews"
             class="srmplugin.Mesageview"
+            icon="icons/message.png"
             id="SrmPlugIn.Mesageview"
             name="%view.name.1"
             restorable="true">
       </view>
       <view
+            category="srmpluginviews"
             class="srmplugin.WordCloud"
+            icon="icons/cloud.png"
             id="SrmPlugIn.WordCloud"
             name="%view.name.3"
             restorable="true">

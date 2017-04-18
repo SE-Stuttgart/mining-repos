@@ -27,7 +27,7 @@ public class FilePathToClusterMap {
 	}
 	
 	/**
-	 * Insert the give clusterPath into the given clusterHashMap.
+	 * Insert the given clusterPath into the given clusterHashMap.
 	 * Splits the clusterPath into Cluster and Path.
 	 * Then checks if Path is already contained. 
 	 * If yes append cluster.

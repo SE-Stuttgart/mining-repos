@@ -15,9 +15,9 @@ public class Perspective implements IPerspectiveFactory {
 	public void defineActions(IPageLayout layout) {
 
 		// Add "show views".
-		layout.addShowViewShortcut(IPageLayout.ID_PROJECT_EXPLORER);
 		layout.addShowViewShortcut("SrmPlugIn.CoupledChanges");
 		layout.addShowViewShortcut("SrmPlugIn.Mesageview");
+		layout.addShowViewShortcut("SrmPlugIn.WordCloud");
 	}
 
 	public void defineLayout(IPageLayout layout) {

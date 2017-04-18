@@ -3,6 +3,7 @@ package srmplugin;
 import srmplugin.wordcloud.WordCloudLabelProvider;
 import srmplugin.wordcloud.FilePathToClusterMap;
 import srmplugin.wordcloud.MyWord;
+import srmplugin.wordcloud.SingleSelectionTagCloudViewer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,7 +135,6 @@ public class WordCloud extends ViewPart {
 
 					workspaceName = theResource.getWorkspace().getRoot().getLocation().toOSString();
 					projectName = theProject.getName();
-					//
 					fileName = theResource.getFullPath().removeFirstSegments(1).toOSString();
 					fileName = fileName.replace("\\", "/");
 
@@ -163,9 +163,6 @@ public class WordCloud extends ViewPart {
 		// Hier werden Control Event zur Coupled Changes View und zur Word Cloud
 		// View gesendet.
 		communication.ViewCommunication("file", communication.view("Control"), "viewcommunicationfile/syncEvent");
-		// System.out.println("Was wird gesendet?: "+ " file " +
-		// communication.view("Control") + " " +
-		// "viewcommunicationfile/syncEvent");
 		// Hier werden Control Event zum Commit Information Tab des Message
 		// Views gesendet.
 		communication.ViewCommunication("commitdata", communication.view("Control"),
@@ -230,13 +227,6 @@ public class WordCloud extends ViewPart {
 										communication.view(String.valueOf(s + 1) + "." + index + " "
 												+ Process.ClusterErgebnis.get(s).get(x)),
 										"viewcommunicationfile/syncEvent");
-						/*
-						 * System.out.println("Dieser String wird gesendet: " +
-						 * "file" + " , " + communication.view(String.valueOf(s
-						 * + 1) + "." + index + " " +
-						 * Process.ClusterErgebnis.get(s).get(x)) + " , " +
-						 * "viewcommunicationfile/syncEvent");
-						 */
 						index++;
 					}
 				}
@@ -286,7 +276,8 @@ public class WordCloud extends ViewPart {
 
 	}
 
-	private TagCloudViewer viewer;
+	private SingleSelectionTagCloudViewer viewer;
+	
 	private TagCloud cloud;
 	private Action action1;
 	private Action action2;
@@ -316,8 +307,10 @@ public class WordCloud extends ViewPart {
 
 		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
 
-		cloud = new TagCloud(parent, SWT.NONE);
-		viewer = new TagCloudViewer(cloud);
+		cloud = new TagCloud(parent, SWT.HORIZONTAL | SWT.VERTICAL);
+		//viewer = new TagCloudViewer(cloud);
+		viewer = new SingleSelectionTagCloudViewer(cloud);
+			
 
 		// Init Word Cloud Data Structures
 
@@ -395,7 +388,9 @@ public class WordCloud extends ViewPart {
 			// Send all clusters this file is part of to the message View.
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
+				//IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
+				IStructuredSelection selection = ((IStructuredSelection) event.getSelection());
+				
 				if (!selection.isEmpty()) {
 					printSelection(selection);
 					String path = ((MyWord) selection.getFirstElement()).getPath();
