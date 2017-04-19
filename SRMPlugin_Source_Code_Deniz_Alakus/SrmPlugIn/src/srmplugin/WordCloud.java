@@ -15,7 +15,6 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -25,12 +24,9 @@ import java.util.Map.Entry;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.gef.cloudio.internal.ui.ICloudLabelProvider;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.gef.cloudio.internal.ui.TagCloud;
-import org.eclipse.gef.cloudio.internal.ui.TagCloudViewer;
-import org.eclipse.gef.cloudio.internal.ui.data.Type;
-import org.eclipse.gef.cloudio.internal.ui.view.CloudOptionsComposite;
-import org.eclipse.gef.cloudio.internal.ui.view.TypeLabelProvider;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -38,33 +34,39 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.viewers.BaseLabelProvider;
+
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
+
 import org.eclipse.jface.viewers.TreePath;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.Viewer;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
+
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IPerspectiveDescriptor;
+
 import org.eclipse.ui.ISelectionListener;
 import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.IWorkbenchActionConstants;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
+import org.eclipse.ui.IWorkbenchPartReference;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
@@ -309,6 +311,84 @@ public class WordCloud extends ViewPart {
 		});
 
 		getSite().getWorkbenchWindow().getSelectionService().addSelectionListener(selListener);
+		IWorkbenchPage page = getSite().getWorkbenchWindow().getActivePage();
+		IWorkbenchPart active = page.getActiveEditor();
+
+		// This part Listener detects the active editor and starts cluster
+		// analysis for this file.
+		IPartListener2 pl = new IPartListener2() {
+
+			public void partActivated(IWorkbenchPartReference ref) {
+				if (ref instanceof IEditorReference) {
+					System.out.println(ref.getTitleToolTip());
+
+					window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+					activePage = window.getActivePage();
+
+					// Cluster- und Klassifikationsanalyse
+					IPerspectiveDescriptor perspective = activePage.getPerspective();
+					if (ref.getTitleToolTip() != null) {
+						String filepath = ref.getTitleToolTip();
+						if (filepath.contains("/")) {
+							int index = filepath.indexOf("/");							
+							String path = filepath.substring(index + 1);
+							process.Run(path, perspective.getId());
+							// Ergebnisse der Cluster- und
+							// Klassifikationsanalyse
+							// werden
+							// zum Coupled Changes View und Commit Changes View
+							// gesendet.
+							CommunicationEvent(perspective.getId());
+						}
+					}
+				}
+
+			}
+
+			@Override
+			public void partBroughtToTop(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void partClosed(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void partDeactivated(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void partOpened(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void partHidden(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void partVisible(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void partInputChanged(IWorkbenchPartReference partRef) {
+				// TODO Auto-generated method stub
+
+			}
+
+		};
+		page.addPartListener(pl);
 
 		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
 
@@ -540,8 +620,9 @@ public class WordCloud extends ViewPart {
 							}
 						} else {
 							System.err.println("Please Follow the SRM Plug-in Wizard.");
-							JOptionPane.showMessageDialog(new JFrame(), "Please open a source file in the Project explorer \n "
-									+ "and follow the SRM Plug-in Wizard. \n");
+							JOptionPane.showMessageDialog(new JFrame(),
+									"Please open a source file in the Project explorer \n "
+											+ "and follow the SRM Plug-in Wizard. \n");
 							return;
 						}
 					// Implement WordCloudView -> MessageView dataflow here!
