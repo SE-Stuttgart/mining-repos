@@ -18,41 +18,44 @@ import FPGA.FPGrowthAlgorithmus;
 public class DBConnection {
 
 	private Connection conn = null;
-	private String database = "";   // Databasename
+	private String database = ""; // Databasename
 	private static DBConnection dbcon = null;
 	private Statement statement; // Statement
 
-	// simdi ise buraya yazilacak database readstoreprocedure new Storeprozedure okunan degerler buraya
-	public static List<List<String>> sqlprocedureInput;// 
-	
+	// simdi ise buraya yazilacak database readstoreprocedure new Storeprozedure
+	// okunan degerler buraya
+	public static List<List<String>> sqlprocedureInput;//
+
 	// CommidMesagetable dan okunan degrler buraya prozodedurdan gelen sonuc
 	public static List<List<String>> sqlcommitInput;
-	
+
 	// Issutabledan okunan degerler buraya
 	public static List<List<String>> issueData = new ArrayList<List<String>>();
 
-	// MinSupoort hesaplamak icin gerekli olan TRansaktion sayisinin kaydedilmesinde
+	// MinSupoort hesaplamak icin gerekli olan TRansaktion sayisinin
+	// kaydedilmesinde
 	public int mincounter;
 
-	private DBConnection() {}
-	
+	private DBConnection() {
+	}
+
 	// Erzeuge ein Singleton Objekt
 	public static DBConnection getDBConnection() {
 		if (DBConnection.dbcon == null)
 			DBConnection.dbcon = new DBConnection();
 		return DBConnection.dbcon;
 	}
-	
+
 	private void createConnection() {
 		try {
 			Class.forName("org.h2.Driver");
-			conn = DriverManager.getConnection(
-					"jdbc:h2:"+Platform.getConfigurationLocation().getURL().getPath()
-					+database
-					+";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");
-			/*System.out.println("jdbc:h2:"+Platform.getConfigurationLocation().getURL().getPath()
-					+database
-					+";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");*/
+			conn = DriverManager.getConnection("jdbc:h2:" + Platform.getConfigurationLocation().getURL().getPath()
+					+ database + ";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");
+			/*
+			 * System.out.println("jdbc:h2:"+Platform.getConfigurationLocation()
+			 * .getURL().getPath() +database
+			 * +";DATABASE_TO_UPPER=false;IGNORECASE=TRUE");
+			 */
 		} catch (ClassNotFoundException e) {
 			System.out.println("Treiber nicht gefunden");
 		} catch (SQLException e) {
@@ -63,20 +66,20 @@ public class DBConnection {
 	private Connection getConnection() {
 		if (conn == null)
 			return null;
-		else if(database.length() == 0)
+		else if (database.length() == 0)
 			return null;
-		
+
 		return conn;
 	}
-	
+
 	public boolean isConnected() {
 		return conn != null;
 	}
-	
+
 	public boolean isConnectedToDatabase() {
 		return isConnected() && database.length() > 0;
 	}
-	
+
 	public void setDatabse(String dbname) {
 		database = dbname;
 		if (isConnected()) {
@@ -89,33 +92,33 @@ public class DBConnection {
 		}
 		createConnection();
 	}
-	
+
 	public boolean existsTable(String name) {
 		conn = this.getConnection();
 		if (conn == null)
 			return false;
-		
+
 		DatabaseMetaData metadata;
 		ResultSet resultSet;
 		try {
 			metadata = conn.getMetaData();
 			resultSet = metadata.getTables(null, null, name, null);
-			if(resultSet.next())
+			if (resultSet.next())
 				return true;
 			else
 				return false;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return false;
 	}
-	
+
 	public boolean commitTablesExist() {
 		conn = this.getConnection();
 		if (conn == null)
 			return false;
-		
+
 		boolean commitTableExists = false;
 		boolean fileTableExists = false;
 		boolean usageTableExists = false;
@@ -143,7 +146,7 @@ public class DBConnection {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		// Only if all three tables exists we don't hava to create new tables
 		if (commitTableExists && fileTableExists && usageTableExists) {
 			return true;
@@ -170,49 +173,50 @@ public class DBConnection {
 	 * = 1; while (i <= numcols) { if(!result.getString(i).equals("")){
 	 * row.add(result.getString(i)); } i++; } mincounter++; res.add(row); } }
 	 * catch (SQLException e) { e.printStackTrace(); }
-	 * FPGrowthAlgorithmus.input=res; //
-	 * System.out.println("FOGA giden"+""+res);
+	 * FPGrowthAlgorithmus.input=res; // System.out.println("FOGA
+	 * giden"+""+res);
 	 * 
 	 * }}
 	 * 
 	 */
 
-	// ---------------This Method reads the data from the inputdatabasetable----------
-	// -------saves it into an array and send the array as an input to the fpgaAlg------
+	// ---------------This Method reads the data from the
+	// inputdatabasetable----------
+	// -------saves it into an array and send the array as an input to the
+	// fpgaAlg------
 
 	public void ReadInputTable(String author) {
-		
+
 		mincounter = 0;
 		List<List<String>> res = new ArrayList<>();
-		
+
 		if ((conn = getConnection()) != null) {
-			
-			try(Statement query = conn.createStatement()) {
-				
+
+			try (Statement query = conn.createStatement()) {
+
 				String sql;
 				ResultSet result = null;
-				
-				if(author == null)
+
+				if (author == null)
 					sql = "SELECT commit_id, file_id FROM usagetable";
 				else
 					// Wähle lediglich (commit_id,file_id) Paare aus, die einem
 					// bestimmten Autor gehören
-					sql = "SELECT commit_id, file_id "
-						+ "FROM usagetable WHERE commit_id IN ( "
-						+ "SELECT c.id FROM committable c "
-						+ "WHERE c.author = '"+author+"' )";
-				
+					sql = "SELECT commit_id, file_id " + "FROM usagetable WHERE commit_id IN ( "
+							+ "SELECT c.id FROM committable c " + "WHERE c.author = '" + author + "' )";
+
 				result = query.executeQuery(sql);
 
 				List<String> temp = new ArrayList<>();
 				int index = 0;
 
 				while (result.next()) {
-					
+
 					// Null werte wird überprüft
 					if (result.getString(2).toString().equals("")) {
-						
-						// hier wird überprüft, ob die letze Tranaktionen null ??
+
+						// hier wird überprüft, ob die letze Tranaktionen null
+						// ??
 						if (result.isLast()) {
 							if (index > 1) {
 								res.add(temp);
@@ -264,12 +268,13 @@ public class DBConnection {
 			} catch (SQLException e) {
 				e.printStackTrace();
 			}
-			
+
 			FPGrowthAlgorithmus.input = res;
 		}
 	}
 
-	// File Path durch File ID bestimmt und converitert dann ReadInputTable() übermittelt.
+	// determine filepath through file ID. Convert FilePath and send to
+	// ReadInputTable()
 	public String ReadFile(String FileID) {
 		String resfileID = new String();
 		conn = getConnection();
@@ -297,13 +302,95 @@ public class DBConnection {
 		return resfileID.replace("\\", "/");
 	}
 
-	
 	// This places reads the data from the Commid Message Table
+	// We are calling in Commit View
+	// We've done it this way for next time we see a new object
+	// Issue information is different value here, do not list here
+
 	///////////////////////// Commidview de cagiriyoruz
 	// Her cagirmada yeni obje �retmemiz geconnrektigi icin bu sekiilde yaptik
 	/// Issu info farkli degerler oldugu iicn burada list yapcaz ki duger
 	// degerelrede ulasas bilek
-	
+
+	public void readCommitTable() {
+		List<List<String>> readcommittable = new ArrayList<>();
+
+		conn = getConnection();
+		if (conn != null) {
+			Statement query;
+			try {
+				query = conn.createStatement();
+				String sql = "SELECT * FROM committable";
+				ResultSet result = query.executeQuery(sql);
+				ResultSetMetaData data = result.getMetaData();
+				int numcols = data.getColumnCount();
+				while (result.next()) {
+					List<String> row = new ArrayList<>(numcols);
+					int i = 1;
+					while (i <= numcols) {
+						row.add(result.getString(i++));
+					}
+					readcommittable.add(row);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void readFileTable() {
+		List<List<String>> readfiletable = new ArrayList<>();
+
+		conn = getConnection();
+		if (conn != null) {
+			Statement query;
+			try {
+				query = conn.createStatement();
+				String sql = "SELECT * FROM filetable";
+				ResultSet result = query.executeQuery(sql);
+				ResultSetMetaData data = result.getMetaData();
+				int numcols = data.getColumnCount();
+				while (result.next()) {
+					List<String> row = new ArrayList<>(numcols);
+					int i = 1;
+					while (i <= numcols) {
+						row.add(result.getString(i++));
+					}
+					readfiletable.add(row);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void readUsageTable() {
+		List<List<String>> readusagetable = new ArrayList<>();
+
+		conn = getConnection();
+		if (conn != null) {
+			Statement query;
+			try {
+				query = conn.createStatement();
+				String sql = "SELECT * FROM usagetable";
+				ResultSet result = query.executeQuery(sql);
+				ResultSetMetaData data = result.getMetaData();
+				int numcols = data.getColumnCount();
+				while (result.next()) {
+					List<String> row = new ArrayList<>(numcols);
+					int i = 1;
+					while (i <= numcols) {
+						row.add(result.getString(i++));
+					}
+					readusagetable.add(row);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
 	public String ReadCommitMessage(String searchedCommitID) {
 		String resCommidId = new String();
 		conn = getConnection();
@@ -327,8 +414,102 @@ public class DBConnection {
 		}
 		return resCommidId;
 	}
-
 	
+	//TODO Methods for getting Color Tone for words in Wordcloud
+	
+	public String getFileID(String path) {		
+		List<List<String>> readfiletable = new ArrayList<>();
+		
+		path.replace("/", "\\");
+
+		conn = getConnection();
+		if (conn != null) {
+			Statement query;
+			try {
+				query = conn.createStatement();
+				String sql = "SELECT * FROM filetable WHERE path = '" + path + "'";
+				ResultSet result = query.executeQuery(sql);
+				ResultSetMetaData data = result.getMetaData();
+				int numcols = data.getColumnCount();
+				while (result.next()) {
+					List<String> row = new ArrayList<>(numcols);
+					int i = 1;
+					while (i <= numcols) {
+						row.add(result.getString(i++));
+					}
+					readfiletable.add(row);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return readfiletable.get(0).get(0);
+	}
+	
+	public List<String> getUsagesOfFile(String fileID) {
+		List<String> usagetable = new ArrayList<>();
+		String row = null;
+
+		conn = getConnection();
+		if (conn != null) {
+			Statement query;
+			try {
+				query = conn.createStatement();
+				String sql = "SELECT commit_id FROM usagetable WHERE file_id = '" + fileID + "'";
+				ResultSet result = query.executeQuery(sql);
+				ResultSetMetaData data = result.getMetaData();
+				int numcols = data.getColumnCount();
+				while (result.next()) {					
+					int i = 1;
+					while (i <= numcols) {
+						row = result.getString(i++).toString();
+					}
+					usagetable.add(row);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return usagetable;
+
+	}
+	
+	public String getDateFromCommitTable(String commitID) {
+		List<List<String>> readcommittable = new ArrayList<>();
+
+		conn = getConnection();
+		if (conn != null) {
+			Statement query;
+			try {
+				query = conn.createStatement();
+				String sql = "SELECT date FROM committable WHERE id = '"+commitID+"'";
+				ResultSet result = query.executeQuery(sql);
+				ResultSetMetaData data = result.getMetaData();
+				int numcols = data.getColumnCount();
+				while (result.next()) {
+					List<String> row = new ArrayList<>(numcols);
+					int i = 1;
+					while (i <= numcols) {
+						row.add(result.getString(i++));
+					}
+					readcommittable.add(row);
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return readcommittable.get(0).get(0);
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+
 	// This places reads the data from the issue Table
 	public void ReadIssueTable() {
 		List<List<String>> readissuetable = new ArrayList<>();
@@ -358,17 +539,16 @@ public class DBConnection {
 		}
 	}
 
-	
-	// This places reads the data from the docu Table 
+	// This places reads the data from the docu Table
 	// call sqlprozedure
 	public List<String> ReadDocuTable(String Selected_File) {
 
 		List<String> res = new ArrayList<>();
-		
+
 		if ((conn = getConnection()) != null && existsTable("docutable")) {
 
 			PreparedStatement cstmt = null;
-			
+
 			try {
 				cstmt = conn.prepareStatement("SELECT * from docutable WHERE path LIKE ?");
 				cstmt.setString(1, Selected_File);
@@ -388,7 +568,7 @@ public class DBConnection {
 				e.printStackTrace();
 			} finally {
 				try {
-					if(cstmt != null)
+					if (cstmt != null)
 						cstmt.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
@@ -401,54 +581,53 @@ public class DBConnection {
 		return res;
 	}
 
-
 	// This places call sqlprozedure for inputtable
 	public void ReadOutputTable(String selectedFile) {
-		
+
 		sqlprocedureInput = new ArrayList<>();
 		sqlcommitInput = new ArrayList<>();
 		List<List<String>> res = new ArrayList<>();
 		PreparedStatement cstmt = null;
-		
+
 		if ((conn = getConnection()) != null) {
-			
+
 			try (Statement s = conn.createStatement()) {
-				
-				//only get one row
+
+				// only get one row
 				ResultSet result = s.executeQuery("SELECT * FROM outputtable LIMIT 1");
 				ResultSetMetaData metaData = result.getMetaData();
-				
-				//return if outputtable empty
+
+				// return if outputtable empty
 				if (!result.next())
 					return;
-				
-				int itemcount=0;
-				//find out how many "Item" columns exist
-				for(int i=4; i<=metaData.getColumnCount(); i++) {
+
+				int itemcount = 0;
+				// find out how many "Item" columns exist
+				for (int i = 4; i <= metaData.getColumnCount(); i++) {
 					if (metaData.getColumnName(i).contains("Item")) {
 						itemcount++;
 					}
 				}
-				
-				//build where clause from Item count
+
+				// build where clause from Item count
 				StringBuilder whereclause = new StringBuilder(160);
-				
-				if (itemcount>1) {
+
+				if (itemcount > 1) {
 					whereclause.append("Item1 LIKE ? OR ");
-					for(int i=2; i<=itemcount-1; i++) {
-						whereclause.append("Item"+i+" LIKE ? OR ");
+					for (int i = 2; i <= itemcount - 1; i++) {
+						whereclause.append("Item" + i + " LIKE ? OR ");
 					}
-					whereclause.append("Item"+itemcount+" LIKE ?");
+					whereclause.append("Item" + itemcount + " LIKE ?");
 				} else
 					whereclause.append("Item1 LIKE ?");
-								
-				String sql = "SELECT * FROM outputtable WHERE "+whereclause;
+
+				String sql = "SELECT * FROM outputtable WHERE " + whereclause;
 				cstmt = conn.prepareStatement(sql);
-				
-				for(int i=1; i<=itemcount; i++) {
+
+				for (int i = 1; i <= itemcount; i++) {
 					cstmt.setString(i, selectedFile);
 				}
-				
+
 				result = cstmt.executeQuery();
 
 				ResultSetMetaData data = result.getMetaData();
@@ -471,19 +650,20 @@ public class DBConnection {
 				e.printStackTrace();
 			} finally {
 				try {
-					if(cstmt != null)
+					if (cstmt != null)
 						cstmt.close();
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-			sqlprocedureInput = res; // notwendig Clusteranalyse(Coupledchangesview)!
-			sqlcommitInput = res;    // notwendig für Klassifikation(Commitchangesview)!
+			sqlprocedureInput = res; // notwendig
+										// Clusteranalyse(Coupledchangesview)!
+			sqlcommitInput = res; // notwendig für
+									// Klassifikation(Commitchangesview)!
 		}
 	}
 
-	
 	// ------this method is used to insert to the Outputtable-------
 	public void WriteIntoOutputTable(String outputTableName) {
 		String Nullval = null;
@@ -510,7 +690,8 @@ public class DBConnection {
 						for (int x = 2; x < FPGrowthAlgorithmus.maxSupport + 2; x++) {
 							sqlSTR += "'" + FPGrowthAlgorithmus.output.get(l).get(x) + "'" + ",";
 						}
-					} else if (Integer.parseInt(FPGrowthAlgorithmus.output.get(l).get(0)) < FPGrowthAlgorithmus.maxSupport) {
+					} else if (Integer
+							.parseInt(FPGrowthAlgorithmus.output.get(l).get(0)) < FPGrowthAlgorithmus.maxSupport) {
 						int index = 0;
 						for (int x = 2; x < FPGrowthAlgorithmus.maxSupport + 2; x++) {
 							index++;
@@ -537,9 +718,11 @@ public class DBConnection {
 								+ Integer.parseInt(FPGrowthAlgorithmus.output.get(l).get(0)) + 1; z++) {
 
 							index++;
-							if (index <= Integer.parseInt(FPGrowthAlgorithmus.output.get(l).get(1)) && z!=FPGrowthAlgorithmus.output.get(l).size()) {
-//								if (z==FPGrowthAlgorithmus.output.get(l).size())
-//									break;
+							if (index <= Integer.parseInt(FPGrowthAlgorithmus.output.get(l).get(1))
+									&& z != FPGrowthAlgorithmus.output.get(l).size()) {
+								// if
+								// (z==FPGrowthAlgorithmus.output.get(l).size())
+								// break;
 								sqlSTR += "'" + FPGrowthAlgorithmus.output.get(l).get(z) + "'" + ",";
 							} else {
 								sqlSTR += "'" + Nullval + "'" + ",";
@@ -569,14 +752,14 @@ public class DBConnection {
 
 	}
 
-	
-	// this method is used to create the Cluster- und outputtable in the Datenbank
+	// this method is used to create the Cluster- und outputtable in the
+	// Datenbank
 	/**
 	 * After the Frequent-Itemset-Analysis by the FPGrowthAlgorithm terminated,
-	 * this function creates the Outputtable.
-	 * Old Outputtables are being overwritten, thus only containing up-to-date information.
-	 * This function only creates the table structure.
-	 * It is filled with data from the FPGrowthAlgorithm later on.
+	 * this function creates the Outputtable. Old Outputtables are being
+	 * overwritten, thus only containing up-to-date information. This function
+	 * only creates the table structure. It is filled with data from the
+	 * FPGrowthAlgorithm later on.
 	 */
 	public void CreateOutputTable(String outputTableName) {
 		conn = getConnection();
@@ -606,7 +789,6 @@ public class DBConnection {
 		}
 	}
 
-	
 	// Cluster Ergebnisse in CLusteroutputtable gespeichert
 	public void WriteIntoOutputTable(String outputTableName, List<String> cluster) {
 
@@ -614,7 +796,8 @@ public class DBConnection {
 		if (conn != null) {
 			try {
 				statement = conn.createStatement();
-				//System.out.println("insert " + outputTableName + " table_______START");
+				// System.out.println("insert " + outputTableName + "
+				// table_______START");
 				String sqlSTR = "INSERT INTO " + outputTableName + "(";
 				sqlSTR += "Support, Length, ";
 				for (int y = 1; y <= FPGrowthAlgorithmus.maxSupport; y++) {
@@ -632,9 +815,10 @@ public class DBConnection {
 				}
 				sqlSTR += "'" + cluster.get(c) + "'";
 				sqlSTR += " )";
-				//System.out.println("SQL-String: " + sqlSTR );
+				// System.out.println("SQL-String: " + sqlSTR );
 				statement.executeUpdate(sqlSTR);
-				//System.out.println("insert " + outputTableName + " table_______END");
+				// System.out.println("insert " + outputTableName + "
+				// table_______END");
 			}
 
 			catch (SQLException se) {
@@ -650,20 +834,19 @@ public class DBConnection {
 		}
 
 	}
-	
+
 	// Lese Committers mit >= nCommitters Commits aus
 	public Object[] getCommiters(int nCommitters) {
 		ArrayList<String> committers = new ArrayList<>();
 		ArrayList<String> commitcount = new ArrayList<>();
-		
-		if((conn = getConnection()) != null) {
-			try(Statement s = conn.createStatement()) {
-				String q = "SELECT author, COUNT(author) "
-						+ "FROM committable "
-						+ "GROUP BY author HAVING COUNT(author) >= "+nCommitters+" "
+
+		if ((conn = getConnection()) != null) {
+			try (Statement s = conn.createStatement()) {
+				String q = "SELECT author, COUNT(author) " + "FROM committable "
+						+ "GROUP BY author HAVING COUNT(author) >= " + nCommitters + " "
 						+ "ORDER BY COUNT(author) DESC";
 				ResultSet res = s.executeQuery(q);
-				while(res.next()) {
+				while (res.next()) {
 					committers.add(res.getString(1));
 					commitcount.add(res.getString(2));
 				}
@@ -672,7 +855,7 @@ public class DBConnection {
 				e.printStackTrace();
 			}
 		}
-		return new Object[] {committers,commitcount};
+		return new Object[] { committers, commitcount };
 	}
 
 }

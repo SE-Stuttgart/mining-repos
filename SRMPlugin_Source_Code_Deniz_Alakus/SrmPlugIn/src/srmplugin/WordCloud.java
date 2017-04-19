@@ -1,6 +1,7 @@
 package srmplugin;
 
 import srmplugin.wordcloud.WordCloudLabelProvider;
+import srmplugin.wordcloud.DateChecker;
 import srmplugin.wordcloud.FilePathToClusterMap;
 import srmplugin.wordcloud.MyWord;
 import srmplugin.wordcloud.SingleSelectionTagCloudViewer;
@@ -340,7 +341,9 @@ public class WordCloud extends ViewPart {
 					String currentClusterPath = (String) event.getProperty("file");
 
 					if (currentClusterPath.equals(endOfTransmissionString)) {
-						viewer.setInput(wordList);
+						DateChecker dateChecker = new DateChecker();
+						dateChecker.createDateTable(wordList);
+						viewer.setInput(wordList);						
 					} else {
 						filePathToClusterMap.putInClusterHashMap(currentClusterPath);
 					}

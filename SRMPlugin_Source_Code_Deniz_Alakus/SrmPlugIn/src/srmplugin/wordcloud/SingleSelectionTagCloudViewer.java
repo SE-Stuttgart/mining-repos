@@ -37,12 +37,6 @@ public class SingleSelectionTagCloudViewer extends TagCloudViewer {
 				selection.clear();
 				selection.add(word);
 				getCloud().setSelection(selection);
-				/* REALLY URGENT QUICKFIX
-				boolean remove = selection.remove(word);
-				if (!remove)
-					selection.add(word);
-				cloud.setSelection(selection);
-				*/
 			}
 
 			@Override

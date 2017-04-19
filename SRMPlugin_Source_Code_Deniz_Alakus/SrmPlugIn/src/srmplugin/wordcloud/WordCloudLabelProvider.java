@@ -30,7 +30,9 @@ public class WordCloudLabelProvider extends BaseLabelProvider implements ICloudL
 
 	@Override
 	public Color getColor(Object element) {
-		return Display.getDefault().getSystemColor(SWT.COLOR_GREEN);
+		DateChecker dateChecker = new DateChecker();
+		Color color = dateChecker.check(((MyWord) element).getPath());
+		return color;
 	}
 
 	@Override
