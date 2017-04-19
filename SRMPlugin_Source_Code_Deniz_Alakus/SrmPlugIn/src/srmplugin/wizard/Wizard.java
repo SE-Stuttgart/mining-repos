@@ -40,6 +40,8 @@ public class Wizard extends org.eclipse.jface.wizard.Wizard {
 	public boolean needsProgressMonitor() {
 		return true;
 	}
+	
+	
 
 	@Override
 	public boolean performFinish() {

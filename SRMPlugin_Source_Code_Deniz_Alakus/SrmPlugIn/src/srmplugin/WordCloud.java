@@ -16,6 +16,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IProject;
@@ -278,7 +282,7 @@ public class WordCloud extends ViewPart {
 	}
 
 	private SingleSelectionTagCloudViewer viewer;
-	
+
 	private TagCloud cloud;
 	private Action action1;
 	private Action action2;
@@ -309,9 +313,8 @@ public class WordCloud extends ViewPart {
 		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
 
 		cloud = new TagCloud(parent, SWT.HORIZONTAL | SWT.VERTICAL);
-		//viewer = new TagCloudViewer(cloud);
+		// viewer = new TagCloudViewer(cloud);
 		viewer = new SingleSelectionTagCloudViewer(cloud);
-			
 
 		// Init Word Cloud Data Structures
 
@@ -319,9 +322,9 @@ public class WordCloud extends ViewPart {
 
 		FilePathToClusterMap filePathToClusterMap = new FilePathToClusterMap(labelProvider);
 
-		String clusterPath1 = "1.0 path/SRM-Plugin";
-		String clusterPath2 = "2.0 path/SRM-Plugin";
-		String clusterPath3 = "2.1 path/sub/Select file in Package Explorer";
+		String clusterPath1 = "Select a file in the Project";
+		String clusterPath2 = "Wordsize represents level of coupling";
+		String clusterPath3 = "Click on the Wordcloud to view corresponding commit-information";
 
 		filePathToClusterMap.putInClusterHashMap(clusterPath1);
 		filePathToClusterMap.putInClusterHashMap(clusterPath2);
@@ -341,9 +344,12 @@ public class WordCloud extends ViewPart {
 					String currentClusterPath = (String) event.getProperty("file");
 
 					if (currentClusterPath.equals(endOfTransmissionString)) {
-						DateChecker dateChecker = new DateChecker();
-						dateChecker.createDateTable(wordList);
-						viewer.setInput(wordList);						
+						// TODO Here one can start to implement a sorting by
+						// last file edit date to get weights for color shading
+						// the words.
+						// DateChecker dateChecker = new DateChecker();
+						// dateChecker.createDateTable(wordList);
+						viewer.setInput(wordList);
 					} else {
 						filePathToClusterMap.putInClusterHashMap(currentClusterPath);
 					}
@@ -391,105 +397,153 @@ public class WordCloud extends ViewPart {
 			// Send all clusters this file is part of to the message View.
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
-				//IStructuredSelection selection = ((IStructuredSelection) viewer.getSelection());
 				IStructuredSelection selection = ((IStructuredSelection) event.getSelection());
-				
+
 				if (!selection.isEmpty()) {
+
+					String path = null;
 					printSelection(selection);
-					String path = ((MyWord) selection.getFirstElement()).getPath();
-					if (DBConnection.sqlprocedureInput.size() != 0) {
-
-						// find all Cluster this file is part of
-						List<String> clusterList = getClustersOfThisPath(filePathToClusterMap, path);
-
-						// get only the leading cluster numbers
-						List<Integer> listOfClustersInt = getLeadingClusterNumberAsIntList(clusterList);
-
-						// Send Control Event to inform other views of incoming
-						// message
-						sendControlEvent();
-
-						// Send Information to Path Information Tab
-						// TODO
-
-						// Send Information to Commit Information Tab of Message
-						// View
-
-						// here the commit Id and Commit messages are
-						// being sent to the Commit Information tab of Message
-						// View.
-
-						// TODO remove duplicates, sort by #of same ID.
-
-						// Init data structures for sorting, eliminating
-						// duplicates and sending Messages to MessageView
-						HashMap<MyWord, Integer> commitCountHashMap = new HashMap<MyWord, Integer>();
-						ArrayList<String[]> commitdata = new ArrayList<>();
-
-						// Iterate over all clusternumbers
-						for (Iterator<Integer> iter = listOfClustersInt.iterator(); iter.hasNext();) {
-							// Current Clusternumber
-							Integer clusterNum = iter.next();
-
-							// Process all commit messages of the current
-							// Clusternumber.
-							for (int i = 2; i < Integer.parseInt(Process.ClusterErgebnis.get(clusterNum).get(0))
-									+ 2; i++) {
-
-								// Put in HashMap and count occurences. Will be
-								// used later to eliminate duplicates and sort
-								// by relevance.
-								
-								//Using MyWord class because it is immutable. A string array would not work because of mutability of arrays.
-								//This word contains: commitID, CommitMessage, occurence value 1
-								String id = Process.ClusterErgebnis.get(clusterNum).get(i);
-								String message = dataBaseCon.ReadCommitMessage(Process.ClusterErgebnis.get(clusterNum).get(i));
-								MyWord commitIdAndMessage = new MyWord(id,message,1);
-								
-								if (commitCountHashMap.containsKey(commitIdAndMessage)) {
-									// If already in Map, increment occurence
-									// value.
-									int occ = commitCountHashMap.get(commitIdAndMessage);
-									commitCountHashMap.put(commitIdAndMessage,
-											occ + 1);
-								} else {
-									// If not already in Map, put it in with
-									// occurence value == 1.
-									commitCountHashMap.put(commitIdAndMessage, 1);
-								}
-							}
-						}
-						
-						
-						//HashMap has no duplicates. Still need to sort by value.
-						
-						//Sort
-						Object[] objectArray = commitCountHashMap.entrySet().toArray();
-						
-						Arrays.sort(objectArray, new Comparator(){
-
-							@Override
-							public int compare(Object o1, Object o2) {
-								return ((Map.Entry<MyWord, Integer>) o2).getValue().compareTo(((Map.Entry<MyWord, Integer>) o1).getValue());
-							}
-							
-						});
-						
-						//Send Data to Message View ordered by number of occunrences descending.
-						for(Object o : objectArray){
-							
-							String id = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getPath();
-							String message = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getWord();
-							System.out.println(id + " : " + message + " : " + ((Map.Entry<MyWord, Integer>) o).getValue());
-							
-							commitdata.add(new String[] {id, message});
-							
-						}
-						communication.ViewCommunication("commitdata", commitdata,
-								"viewcommunicationcommitdata/syncEvent");
-
+					if (isWord(selection)) {
+						path = getPath(selection);
+					} else {
+						System.err.println("selection can't be casted to MyWord, abort");
+						return;
 					}
+					if (DBConnection.getDBConnection() != null)
+						if (DBConnection.sqlprocedureInput != null) {
+							if (DBConnection.sqlprocedureInput.size() != 0) {
 
+								List<String> clusterList;
+								if (!path.equals(null)) {
+									// find all Cluster this file is part of
+									clusterList = getClustersOfThisPath(filePathToClusterMap, path);
+								} else {
+									System.err.println("path of file is null, abort");
+									return;
+								}
+
+								List<Integer> listOfClustersInt;
+
+								if (!clusterList.isEmpty()) {
+									// get only the leading cluster numbers
+									listOfClustersInt = getLeadingClusterNumberAsIntList(clusterList);
+								} else {
+									System.err.println("clusterList is empty, abort");
+									return;
+								}
+
+								// Send Control Event to inform other views of
+								// incoming
+								// message
+								sendControlEvent();
+
+								// Send Information to Path Information Tab
+								// TODO
+
+								// Send Information to Commit Information Tab of
+								// Message
+								// View
+
+								// here the commit Id and Commit messages are
+								// being sent to the Commit Information tab of
+								// Message
+								// View.
+
+								// TODO remove duplicates, sort by #of same ID.
+
+								// Init data structures for sorting, eliminating
+								// duplicates and sending Messages to
+								// MessageView
+								HashMap<MyWord, Integer> commitCountHashMap = new HashMap<MyWord, Integer>();
+								ArrayList<String[]> commitdata = new ArrayList<>();
+
+								// Iterate over all clusternumbers
+								for (Iterator<Integer> iter = listOfClustersInt.iterator(); iter.hasNext();) {
+									// Current Clusternumber
+									Integer clusterNum = iter.next();
+
+									// Process all commit messages of the
+									// current
+									// Clusternumber.
+									for (int i = 2; i < Integer.parseInt(Process.ClusterErgebnis.get(clusterNum).get(0))
+											+ 2; i++) {
+
+										// Put in HashMap and count occurences.
+										// Will
+										// be
+										// used later to eliminate duplicates
+										// and
+										// sort
+										// by relevance.
+
+										// Using MyWord class because it is
+										// immutable. A
+										// string array would not work because
+										// of
+										// mutability of arrays.
+										// This word contains: commitID,
+										// CommitMessage,
+										// occurence value 1
+										String id = Process.ClusterErgebnis.get(clusterNum).get(i);
+										String message = dataBaseCon
+												.ReadCommitMessage(Process.ClusterErgebnis.get(clusterNum).get(i));
+										MyWord commitIdAndMessage = new MyWord(id, message, 1);
+
+										if (commitCountHashMap.containsKey(commitIdAndMessage)) {
+											// If already in Map, increment
+											// occurence
+											// value.
+											int occ = commitCountHashMap.get(commitIdAndMessage);
+											commitCountHashMap.put(commitIdAndMessage, occ + 1);
+										} else {
+											// If not already in Map, put it in
+											// with
+											// occurence value == 1.
+											commitCountHashMap.put(commitIdAndMessage, 1);
+										}
+									}
+								}
+
+								// HashMap has no duplicates. Still need to sort
+								// by
+								// value.
+
+								// Sort
+								Object[] objectArray = commitCountHashMap.entrySet().toArray();
+
+								Arrays.sort(objectArray, new Comparator() {
+
+									@Override
+									public int compare(Object o1, Object o2) {
+										return ((Map.Entry<MyWord, Integer>) o2).getValue()
+												.compareTo(((Map.Entry<MyWord, Integer>) o1).getValue());
+									}
+
+								});
+
+								// Send Data to Message View ordered by number
+								// of
+								// occunrences descending.
+								for (Object o : objectArray) {
+
+									String id = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getPath();
+									String message = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getWord();
+									System.out.println(
+											id + " : " + message + " : " + ((Map.Entry<MyWord, Integer>) o).getValue());
+
+									commitdata.add(new String[] { id, message });
+
+								}
+								communication.ViewCommunication("commitdata", commitdata,
+										"viewcommunicationcommitdata/syncEvent");
+
+							}
+						} else {
+							System.err.println("Please Follow the SRM Plug-in Wizard.");
+							JOptionPane.showMessageDialog(new JFrame(), "Please open a source file in the Project explorer \n "
+									+ "and follow the SRM Plug-in Wizard. \n");
+							return;
+						}
 					// Implement WordCloudView -> MessageView dataflow here!
 
 				}
@@ -540,9 +594,14 @@ public class WordCloud extends ViewPart {
 
 			private List<String> getClustersOfThisPath(FilePathToClusterMap filePathToClusterMap, String path) {
 				List<String> clusterList = new ArrayList<String>();
-				HashMap<String, List<String>> clusterHashMap = filePathToClusterMap.getMap();
-				if (clusterHashMap.containsKey(path)) {
-					clusterList = clusterHashMap.get(path);
+				try {
+
+					HashMap<String, List<String>> clusterHashMap = filePathToClusterMap.getMap();
+					if (clusterHashMap.containsKey(path)) {
+						clusterList = clusterHashMap.get(path);
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
 				return clusterList;
 			}
@@ -573,6 +632,19 @@ public class WordCloud extends ViewPart {
 		makeActions();
 		hookContextMenu();
 		contributeToActionBars();
+	}
+
+	protected String getPath(IStructuredSelection selection) {
+		return ((MyWord) selection.getFirstElement()).getPath();
+	}
+
+	protected boolean isWord(IStructuredSelection selection) {
+		if (selection.getFirstElement() instanceof MyWord) {
+			return true;
+		} else {
+			return false;
+		}
+
 	}
 
 	/**

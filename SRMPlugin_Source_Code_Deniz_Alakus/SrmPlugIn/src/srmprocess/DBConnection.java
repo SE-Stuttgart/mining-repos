@@ -417,17 +417,17 @@ public class DBConnection {
 	
 	//TODO Methods for getting Color Tone for words in Wordcloud
 	
-	public String getFileID(String path) {		
+	public List<List<String>> getFileID(String path) {		
 		List<List<String>> readfiletable = new ArrayList<>();
+		String replPath = path.replace("/", "\\");
 		
-		path.replace("/", "\\");
 
 		conn = getConnection();
 		if (conn != null) {
 			Statement query;
 			try {
 				query = conn.createStatement();
-				String sql = "SELECT * FROM filetable WHERE path = '" + path + "'";
+				String sql = "SELECT * FROM filetable WHERE path = '" + replPath + "'";
 				ResultSet result = query.executeQuery(sql);
 				ResultSetMetaData data = result.getMetaData();
 				int numcols = data.getColumnCount();
@@ -443,7 +443,7 @@ public class DBConnection {
 				e.printStackTrace();
 			}
 		}
-		return readfiletable.get(0).get(0);
+		return readfiletable;
 	}
 	
 	public List<String> getUsagesOfFile(String fileID) {

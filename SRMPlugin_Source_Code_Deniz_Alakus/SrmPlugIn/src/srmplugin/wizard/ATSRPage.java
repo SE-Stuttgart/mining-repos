@@ -12,6 +12,7 @@ import org.eclipse.core.runtime.preferences.ConfigurationScope;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
@@ -24,6 +25,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.osgi.service.prefs.BackingStoreException;
 
 import atsr.controller.transformer.impls.CommitTransformer;
@@ -49,6 +51,23 @@ public class ATSRPage extends WizardPage implements Observer {
 	protected ATSRPage() {
 		super("ATSR Settings","Repository Transformation",null);
 		this.initSettings();
+		this.setDescription("The Repository Path and Database field are retrieved automatically by the currently active project. Issue and Docu are optional.");
+	}
+	
+	//TODO: starting point to display help
+	@Override
+	public void performHelp(){
+		/** Just comment me in to display a browser to display help.
+		Shell shell = new Shell(getShell());
+	    shell.setText("My Custom Help !!");
+	    shell.setLayout(new GridLayout());
+	    shell.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	    
+	    Browser browser = new Browser(shell, SWT.NONE);
+	    browser.setUrl("http://stackoverflow.com/questions/7322489/cant-put-content-behind-swt-wizard-help-button");
+	    browser.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+	    shell.open();
+	    */
 	}
 
 	@Override
@@ -84,7 +103,7 @@ public class ATSRPage extends WizardPage implements Observer {
 		gd.horizontalAlignment = SWT.BEGINNING;
 		Button git_btn = new Button(composite, SWT.NONE);
 		git_btn.setLayoutData(gd);
-		git_btn.setText("...");
+		git_btn.setText("Browse...");
 		git_btn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -148,7 +167,7 @@ public class ATSRPage extends WizardPage implements Observer {
 		
 		Button repo_btn = new Button(repo, SWT.NONE);
 		repo_btn.setLayoutData(gd);
-		repo_btn.setText("...");
+		repo_btn.setText("Browse...");
 		repo_btn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -164,7 +183,7 @@ public class ATSRPage extends WizardPage implements Observer {
 		
 		Button issue_btn = new Button(issue, SWT.NONE);
 		issue_btn.setLayoutData(gd);
-		issue_btn.setText("...");
+		issue_btn.setText("Browse...");
 		issue_btn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -181,7 +200,7 @@ public class ATSRPage extends WizardPage implements Observer {
 		
 		Button docu_btn = new Button(docu, SWT.NONE);
 		docu_btn.setLayoutData(gd);
-		docu_btn.setText("...");
+		docu_btn.setText("Browse...");
 		docu_btn.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {

@@ -26,50 +26,53 @@ public class DateChecker {
 	Map<String, Date> DateOfLastEdit = new HashMap<>();
 	long newestPerFile = 0;
 	long millis;
-	
-	Date newestDate;
+
+	Date newestDatePerFile;
 	Date fileDate;
 
 	public void createDateTable(List<MyWord> wordList) {
 		Map<String, Date> LastUsedTable = new HashMap<>();
 		for (MyWord word : wordList) {
-			
+			newestPerFile = 0;
+			newestDatePerFile = null;
+
 			DBConnection dbconn = DBConnection.getDBConnection();
-			String fileID = dbconn.getFileID(word.getPath());
-			List<String> allUsagesOfFile = dbconn.getUsagesOfFile(fileID);
+			List<List<String>> fileIDs = dbconn.getFileID(word.getPath());
 
-			for (String commitID : allUsagesOfFile) {
-				String currentDate = dbconn.getDateFromCommitTable(commitID);
-				DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
-				try {
-					fileDate = df.parse(currentDate);
-					millis = fileDate.getTime();
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				if (millis != 0) {					
-					if(millis > newestPerFile){
-						newestPerFile = millis;
-						newestDate = fileDate;
+			for (List<String> idEntry : fileIDs) {
+				String fileID = idEntry.get(0);
+
+				List<String> allUsagesOfFile = dbconn.getUsagesOfFile(fileID);
+
+				for (String commitID : allUsagesOfFile) {
+					String currentDate = dbconn.getDateFromCommitTable(commitID);
+					DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
+					try {
+						fileDate = df.parse(currentDate);
+						millis = fileDate.getTime();
+					} catch (ParseException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
-					
+
+					if (millis != 0) {
+						if (millis > newestPerFile) {
+							newestPerFile = millis;
+							newestDatePerFile = fileDate;
+						}
+
+					}
 				}
-
-			}
-			
-			LastUsedTable.put(word.getPath(), newestDate);
-
 			
 		}
-		
-		DateOfLastEdit = LastUsedTable;
-		
+
+		LastUsedTable.put(word.getPath(), newestDatePerFile);
 
 	}
 
-	
+	DateOfLastEdit=LastUsedTable;
+
+	}
 
 	public Color check(String filepath) {
 		Color color = Display.getDefault().getSystemColor(SWT.COLOR_BLUE);

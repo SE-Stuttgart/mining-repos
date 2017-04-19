@@ -99,7 +99,7 @@ public class SelectCommitersPage extends WizardPage {
 		new TableColumn(t, SWT.NULL).setText("#Commits");
 		
 		TableItem ti = new TableItem(t, SWT.NULL);
-		ti.setText(new String[] {">Alle<", "-"});
+		ti.setText(new String[] {">All<", "-"});
 		
 		for (int i=0; i<committers.size(); i++) {
 			ti = new TableItem(t, SWT.NULL);
