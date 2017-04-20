@@ -91,6 +91,10 @@
             id="SrmPlugIn.openperspective"
             name="%command.name.1">
       </command>
+      <command
+            id="SrmPlugIn.preferences"
+            name="%command.name.2">
+      </command>
    </extension>
    
    <extension
@@ -102,6 +106,10 @@
       <handler
             class="srmplugin.openPerspective"
             commandId="SrmPlugIn.openperspective">
+      </handler>
+      <handler
+            class="srmplugin.Preferences"
+            commandId="SrmPlugIn.preferences">
       </handler>
       
        </extension>
@@ -116,6 +124,12 @@
                   commandId="SrmPlugIn.settings"
                   icon="icons/srm.gif"
                   label="Toolbar Wizard"
+                  style="push">
+            </command>
+            <command
+                  commandId="SrmPlugIn.preferences"
+                  icon="icons/settings.png"
+                  label="Plugin Preferences"
                   style="push">
             </command>
          </toolbar>

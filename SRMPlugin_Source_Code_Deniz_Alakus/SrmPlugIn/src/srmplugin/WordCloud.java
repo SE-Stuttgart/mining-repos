@@ -319,29 +319,32 @@ public class WordCloud extends ViewPart {
 		IPartListener2 pl = new IPartListener2() {
 
 			public void partActivated(IWorkbenchPartReference ref) {
-				if (ref instanceof IEditorReference) {
-					System.out.println(ref.getTitleToolTip());
 
-					window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-					activePage = window.getActivePage();
+				if (Preferences.analyzeOnEditorSelect)
+					if (ref instanceof IEditorReference) {
+						System.out.println(ref.getTitleToolTip());
 
-					// Cluster- und Klassifikationsanalyse
-					IPerspectiveDescriptor perspective = activePage.getPerspective();
-					if (ref.getTitleToolTip() != null) {
-						String filepath = ref.getTitleToolTip();
-						if (filepath.contains("/")) {
-							int index = filepath.indexOf("/");							
-							String path = filepath.substring(index + 1);
-							process.Run(path, perspective.getId());
-							// Ergebnisse der Cluster- und
-							// Klassifikationsanalyse
-							// werden
-							// zum Coupled Changes View und Commit Changes View
-							// gesendet.
-							CommunicationEvent(perspective.getId());
+						window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+						activePage = window.getActivePage();
+
+						// Cluster- und Klassifikationsanalyse
+						IPerspectiveDescriptor perspective = activePage.getPerspective();
+						if (ref.getTitleToolTip() != null) {
+							String filepath = ref.getTitleToolTip();
+							if (filepath.contains("/")) {
+								int index = filepath.indexOf("/");
+								String path = filepath.substring(index + 1);
+								process.Run(path, perspective.getId());
+								// Ergebnisse der Cluster- und
+								// Klassifikationsanalyse
+								// werden
+								// zum Coupled Changes View und Commit Changes
+								// View
+								// gesendet.
+								CommunicationEvent(perspective.getId());
+							}
 						}
 					}
-				}
 
 			}
 
@@ -423,12 +426,22 @@ public class WordCloud extends ViewPart {
 					// insert and process all incoming filepaths
 					String currentClusterPath = (String) event.getProperty("file");
 
+					if (currentClusterPath.equals("The selected File does not exist in the Outputtable")) {
+						filePathToClusterMap.getMap().clear();
+						wordList.clear();
+						wordList.add(new MyWord("The selected File does not exist in the Outputtable",
+								"The selected File does not exist in the Outputtable", 1));
+						viewer.setInput(wordList);
+					}
+
 					if (currentClusterPath.equals(endOfTransmissionString)) {
 						// TODO Here one can start to implement a sorting by
 						// last file edit date to get weights for color shading
 						// the words.
 						// DateChecker dateChecker = new DateChecker();
 						// dateChecker.createDateTable(wordList);
+						viewer.getCloud().setMaxFontSize(Preferences.maxSize);
+						viewer.getCloud().setMinFontSize(Preferences.minSize);
 						viewer.setInput(wordList);
 					} else {
 						filePathToClusterMap.putInClusterHashMap(currentClusterPath);
@@ -702,8 +715,8 @@ public class WordCloud extends ViewPart {
 		cloud.setBounds(0, 0, parent.getBounds().width, parent.getBounds().height);
 		cloud.zoomFit();
 
-		viewer.getCloud().setMaxFontSize(100);
-		viewer.getCloud().setMinFontSize(15);
+		viewer.getCloud().setMaxFontSize(Preferences.maxSize);
+		viewer.getCloud().setMinFontSize(Preferences.minSize);
 
 		viewer.setInput(wordList);
 

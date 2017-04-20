@@ -47,7 +47,7 @@ public class SRMSettingsDialogHandler extends AbstractHandler {
 		NWizardDialog wizardDialog = new NWizardDialog(parent, w);
 		NWizardDialog.setDefaultImage(null);
 		wizardDialog.setPageSize(470, 420);
-		wizardDialog.setTitle("SRM Konfiguration");
+		wizardDialog.setTitle("SRM Configuration");
 		wizardDialog.addPageChangedListener(e -> {
 			w.currentPage = (WizardPage) wizardDialog.getCurrentPage();
 			System.out.println(w.currentPage);
