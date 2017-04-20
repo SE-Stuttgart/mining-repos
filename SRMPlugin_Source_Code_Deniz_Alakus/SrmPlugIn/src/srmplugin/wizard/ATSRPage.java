@@ -26,6 +26,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.h2.command.ddl.CreateTableData;
 import org.osgi.service.prefs.BackingStoreException;
 
 import atsr.controller.transformer.impls.CommitTransformer;
@@ -35,6 +36,8 @@ import atsr.model.Settings;
 import atsr.model.ValidateResult;
 import atsr.view.TransformationView;
 import srmplugin.SRMSettings;
+
+import srmplugin.wordcloud.DateTableBuilder;
 import srmprocess.DBConnection;
 
 public class ATSRPage extends WizardPage implements Observer {
@@ -277,6 +280,8 @@ public class ATSRPage extends WizardPage implements Observer {
 						try {
 							new CommitTransformer(SRMSettings.commit_path, settings,
 									getController(), pmonitor).run();
+							new DateTableBuilder(SRMSettings.commit_path, settings,
+							getController(), pmonitor).createDateTable();
 						} catch (SQLException e1) {
 							JOptionPane.showMessageDialog(transformationView,
 									"No connection to the database! \nCheck the settings!", "SQL Error",

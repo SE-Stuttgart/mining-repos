@@ -6,6 +6,7 @@ import srmplugin.wordcloud.FilePathToClusterMap;
 import srmplugin.wordcloud.MyWord;
 import srmplugin.wordcloud.SingleSelectionTagCloudViewer;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -438,8 +439,11 @@ public class WordCloud extends ViewPart {
 						// TODO Here one can start to implement a sorting by
 						// last file edit date to get weights for color shading
 						// the words.
-						// DateChecker dateChecker = new DateChecker();
-						// dateChecker.createDateTable(wordList);
+						
+						
+						//dateChecker = new DateChecker(currentClusterPath, null, null, null);
+						
+						
 						viewer.getCloud().setMaxFontSize(Preferences.maxSize);
 						viewer.getCloud().setMinFontSize(Preferences.minSize);
 						viewer.setInput(wordList);

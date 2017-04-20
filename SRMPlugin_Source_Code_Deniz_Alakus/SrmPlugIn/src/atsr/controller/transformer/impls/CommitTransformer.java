@@ -58,7 +58,7 @@ public class CommitTransformer extends Transformer {
 		Process process;
 		try {
 			ProcessBuilder pb = new ProcessBuilder(this.getSettings().getGitPath(), "log",
-					"--pretty=format:%h#%an#%ad#%s", "--name-only");
+					"--pretty=format:%h#%an#%ad#%s","--name-only");
 			pb.directory(new File(this.getPath()));
 			process = pb.start();
 			InputStream cmdin = process.getInputStream();
