@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Display;
 import atsr.controller.transformer.Transformer;
 import atsr.model.Commit;
 import atsr.model.Settings;
+import srmplugin.Preferences;
 import srmprocess.DBConnection;
 
 public class DateTableBuilder extends Transformer {
@@ -46,11 +47,10 @@ public class DateTableBuilder extends Transformer {
 	Date fileDate;
 
 	/**
-	 * try to query git for log of current file
+	 * query git for log of current file
 	 */
 	public void createDateTable() {
-		Map<String, Date> LastUsedTable = new HashMap<>();
-
+		
 		Process process;
 
 		try {
@@ -97,8 +97,16 @@ public class DateTableBuilder extends Transformer {
 										dateString = dateString.replace("'", "");
 
 										Date currentDate = formatter.parse(dateString);
-
-										// compare
+										System.out.println("File: "+f);
+										System.out.println("Current: "+currentDate.toString());
+										System.out.println("In Tabl: "+dateInTable.toString());
+										// If same file got committed on a newer point in time,
+										// take the newer date, to get the most current commit date.
+										if(currentDate.after(dateInTable)){
+											dateTable.put(f, currentDate);
+										}
+										
+										
 
 									} else if (!dateTable.containsKey(f)) {
 										DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -121,7 +129,9 @@ public class DateTableBuilder extends Transformer {
 					}
 
 				}
-			}
+				DateTable.lastUsedTable = dateTable;
+				Preferences.now = new Date();
+			}			
 		} catch (IOException e) {
 			// Error handling IO
 			JOptionPane.showMessageDialog(null,

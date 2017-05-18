@@ -70,7 +70,7 @@ public class Mesageview extends ViewPart {
 	 */
 
 	private enum Control {
-		CommitID, CommitMessage, Path, Pathdescription, IssueId, Issuedescription, Issuetype
+		CommitID, Count, CommitMessage, Author, Date, Path, Pathdescription, IssueId, Issuedescription, Issuetype
 	}
 
 	// Commit Information Tab des Message View definiert.
@@ -96,9 +96,22 @@ public class Mesageview extends ViewPart {
 		TableColumn tc = new TableColumn(t, SWT.NULL);
 		tc.setText(Control.CommitID.toString());
 		tc.pack();
+		/*
+		tc = new TableColumn(t, SWT.NULL);
+		tc.setText(Control.Count.toString());
+		tc.pack();
+		*/
 		tc = new TableColumn(t, SWT.NULL);
 		tc.setText(Control.CommitMessage.toString());
-		tc.setWidth(300);
+		tc.setWidth(400);
+		
+		tc = new TableColumn(t, SWT.NULL);
+		tc.setText(Control.Author.toString());
+		tc.pack();
+		
+		tc = new TableColumn(t, SWT.NULL);
+		tc.setText(Control.Date.toString());
+		tc.pack();
 		
 		t.setHeaderVisible(true);
 		t.setLinesVisible(true);
@@ -157,12 +170,12 @@ public class Mesageview extends ViewPart {
 
 					Communication.control = false;
 					// Fehler Event zur Issue Information Tab des Message View gesendet.
-					communication.ViewCommunication("IssueId", communication.view("Die gewählte "),
+					communication.ViewCommunication("IssueId", communication.view("The selected "),
 							"viewcommunicationIssueId/syncEvent");
 					communication.ViewCommunication("Issuedescription",
-							communication.view("commitId enhält keine Issue"),
+							communication.view("commitId contains no Issue"),
 							"viewcommunicationIssuedescription/syncEvent");
-					communication.ViewCommunication("Issuetype", communication.view("Mesasge"),
+					communication.ViewCommunication("Issuetype", communication.view("Message"),
 							"viewcommunicationIssuetype/syncEvent");
 				}
 			}
@@ -181,7 +194,7 @@ public class Mesageview extends ViewPart {
 						TableItem ti = new TableItem(t, SWT.NULL);
 						ti.setText(d);
 					}
-					t.getColumn(1).pack();
+					t.getColumn(1).setWidth(400);
 				} else {
 					composite.getDisplay().syncExec( () -> {
 						ArrayList<String[]> commitdata = (ArrayList<String[]>)event.getProperty("commitdata");
@@ -190,7 +203,7 @@ public class Mesageview extends ViewPart {
 							ti.setText(d);
 						}
 					});
-					t.getColumn(1).pack();
+					t.getColumn(1).setWidth(400);
 				}
 			}
 		};

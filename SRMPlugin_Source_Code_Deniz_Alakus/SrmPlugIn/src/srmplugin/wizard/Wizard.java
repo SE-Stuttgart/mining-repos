@@ -49,7 +49,7 @@ public class Wizard extends org.eclipse.jface.wizard.Wizard {
 		if(currentPage instanceof SelectCommitersPage) {
 			DBConnection dataBaseConn = DBConnection.getDBConnection();
 			
-			if(commits.selectedCommitter.equals(">Alle<"))
+			if(commits.selectedCommitter.equals(">All<"))
 				dataBaseConn.ReadInputTable(null);
 			else
 				dataBaseConn.ReadInputTable(commits.selectedCommitter);
@@ -61,8 +61,8 @@ public class Wizard extends org.eclipse.jface.wizard.Wizard {
 
 			if (dataBaseConn.mincounter < 11) {
 				MessageDialog messageDialog = new MessageDialog(this.getShell(), "MessageDialog", null,
-						"Es liegen weniger als 11 Einträge in der Transaktionsdatenbank vor.\n"
-						+ "Bitte wählen Sie eine neue Inputtabelle aus!",
+						"There are less than eleven entries in the transaction table of this author.\n"
+						+ "Please choose another Author!",
 						MessageDialog.WARNING, new String[] { "OK" }, 1);
 				
 				messageDialog.open();
@@ -70,8 +70,8 @@ public class Wizard extends org.eclipse.jface.wizard.Wizard {
 			}
 			if (FPGrowthAlgorithmus.output.size() == 0) {
 				MessageDialog messageDialog = new MessageDialog(this.getShell(), "MessageDialog", null,
-						"Frequent Itemset Analyse liefert keine Ergebnisse!\n"
-						+ "Ändern Sie den Minimum Support Wert und führen Sie die Analyse erneut durch!",
+						"Frequent Itemset Analyse could not come up with results!\n"
+						+ "Lower the Minimum Support value and run the analysis again!",
 						MessageDialog.WARNING, new String[] { "OK" }, 1);
 
 				messageDialog.open();

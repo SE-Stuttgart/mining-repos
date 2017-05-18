@@ -1,5 +1,9 @@
 package srmplugin;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -18,6 +22,16 @@ public class Preferences extends AbstractHandler {
 	public static int maxSize = 200;
 	public static int minSize = 20;
 	public static boolean analyzeOnEditorSelect = true;
+	public static int months = 6;
+	public static Date now;
+	
+	
+	public static Date getLimit(){
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(now);
+		cal.add(Calendar.MONTH, -months);
+		return cal.getTime();
+	}
 	
 	
 	@Override

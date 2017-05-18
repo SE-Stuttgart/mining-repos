@@ -415,6 +415,54 @@ public class DBConnection {
 		return resCommidId;
 	}
 	
+	public String ReadCommitAuthor(String searchedCommitID) {
+		String resCommidId = new String();
+		conn = getConnection();
+		if (conn != null) {
+			Statement query;
+			try {
+				query = conn.createStatement();
+				String sql = "SELECT author FROM committable WHERE id ='" + searchedCommitID + "'";
+				ResultSet result = query.executeQuery(sql);
+				ResultSetMetaData data = result.getMetaData();
+				int numcols = data.getColumnCount();
+				while (result.next()) {
+					int i = 1;
+					while (i <= numcols) {
+						resCommidId += result.getString(i++);
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return resCommidId;
+	}
+	
+	public String ReadCommitDate(String searchedCommitID) {
+		String resCommidId = new String();
+		conn = getConnection();
+		if (conn != null) {
+			Statement query;
+			try {
+				query = conn.createStatement();
+				String sql = "SELECT date FROM committable WHERE id ='" + searchedCommitID + "'";
+				ResultSet result = query.executeQuery(sql);
+				ResultSetMetaData data = result.getMetaData();
+				int numcols = data.getColumnCount();
+				while (result.next()) {
+					int i = 1;
+					while (i <= numcols) {
+						resCommidId += result.getString(i++);
+					}
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return resCommidId;
+	}
+	
 	//TODO Methods for getting Color Tone for words in Wordcloud
 	
 	public List<List<String>> getFileID(String path) {		

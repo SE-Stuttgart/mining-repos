@@ -1,9 +1,9 @@
 package srmplugin;
 
 import srmplugin.wordcloud.WordCloudLabelProvider;
-import srmplugin.wordcloud.DateChecker;
 import srmplugin.wordcloud.FilePathToClusterMap;
 import srmplugin.wordcloud.MyWord;
+import srmplugin.wordcloud.DateTable;
 import srmplugin.wordcloud.SingleSelectionTagCloudViewer;
 
 import java.sql.SQLException;
@@ -406,6 +406,7 @@ public class WordCloud extends ViewPart {
 
 		FilePathToClusterMap filePathToClusterMap = new FilePathToClusterMap(labelProvider);
 
+		/*
 		String clusterPath1 = "Select a file in the Project";
 		String clusterPath2 = "Wordsize represents level of coupling";
 		String clusterPath3 = "Click on the Wordcloud to view corresponding commit-information";
@@ -413,6 +414,7 @@ public class WordCloud extends ViewPart {
 		filePathToClusterMap.putInClusterHashMap(clusterPath1);
 		filePathToClusterMap.putInClusterHashMap(clusterPath2);
 		filePathToClusterMap.putInClusterHashMap(clusterPath3);
+		*/
 		List<MyWord> wordList = filePathToClusterMap.getWordList();
 
 		// When the selection of file in Project explorer gets changed, this
@@ -625,10 +627,14 @@ public class WordCloud extends ViewPart {
 
 									String id = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getPath();
 									String message = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getWord();
+									String author = dataBaseCon.ReadCommitAuthor(id);
+									String date = dataBaseCon.ReadCommitDate(id);
+									//String count = ((Map.Entry<MyWord, Integer>) o).getValue().toString();
 									System.out.println(
 											id + " : " + message + " : " + ((Map.Entry<MyWord, Integer>) o).getValue());
 
-									commitdata.add(new String[] { id, message });
+									//commitdata.add(new String[] { id, count, message });
+									commitdata.add(new String[] { id, message, author, date });
 
 								}
 								communication.ViewCommunication("commitdata", commitdata,
@@ -721,6 +727,8 @@ public class WordCloud extends ViewPart {
 
 		viewer.getCloud().setMaxFontSize(Preferences.maxSize);
 		viewer.getCloud().setMinFontSize(Preferences.minSize);
+		//TODO
+				
 
 		viewer.setInput(wordList);
 

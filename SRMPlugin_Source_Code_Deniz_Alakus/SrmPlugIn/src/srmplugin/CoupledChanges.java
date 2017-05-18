@@ -380,10 +380,11 @@ public class CoupledChanges extends ViewPart {
 						ArrayList<String[]> commitdata = new ArrayList<>();
 											
 						for (int i = 2; i < Integer.parseInt(Process.ClusterErgebnis.get(a).get(0)) + 2; i++) {
-							commitdata.add(new String[] {
-									Process.ClusterErgebnis.get(a).get(i),
-									dataBaseCon.ReadCommitMessage(Process.ClusterErgebnis.get(a).get(i))
-							});
+							String id = Process.ClusterErgebnis.get(a).get(i);
+							String message = dataBaseCon.ReadCommitMessage(id);
+							String author = dataBaseCon.ReadCommitAuthor(id);
+							String date = dataBaseCon.ReadCommitDate(id);
+							commitdata.add(new String[] { id, message, author, date	});
 						}
 						
 						communication.ViewCommunication("commitdata",

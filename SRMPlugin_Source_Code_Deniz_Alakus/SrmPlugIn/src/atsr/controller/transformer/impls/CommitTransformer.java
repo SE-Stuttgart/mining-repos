@@ -115,8 +115,6 @@ public class CommitTransformer extends Transformer {
 								commit = createCommit(header, files);
 								if (commit != null) {
 									commits.add(commit);
-									// TODO delete me
-									System.out.println(commit.getFiles());
 								}
 								files.clear();
 								block = false;
@@ -211,8 +209,7 @@ public class CommitTransformer extends Transformer {
 	 * @return 
 	 */
 	private List<File> removeOldDeletedFiles(List<File> filesToRemoveFrom, List<File> filesToCompareAgainst) {
-		// TODO Auto-generated method stub
-		
+				
 		//List to SET for easier handling
 		Set<File> setA = new HashSet<File>(filesToRemoveFrom);
 		Set<File> setB = new HashSet<File>(filesToCompareAgainst);
@@ -222,7 +219,6 @@ public class CommitTransformer extends Transformer {
 		intersection.retainAll(setB);
 		
 		//SET TO LIST
-		
 		List<File> onlyCurrentFiles = new ArrayList<File>(intersection);
 		return onlyCurrentFiles;
 	}

@@ -25,7 +25,7 @@
    		point="org.eclipse.ui.views">
       <category
          	id="srmpluginviews"
-         	name="SRM Plug-in"/>         
+         	name="%category.name"/>         
       <view
             category="srmpluginviews"
             class="srmplugin.CoupledChanges"
@@ -122,14 +122,14 @@
                id="SrmPlugIn.toolbar">
             <command
                   commandId="SrmPlugIn.settings"
-                  icon="icons/srm.gif"
-                  label="Toolbar Wizard"
+                  icon="/srm.gif"
+                  label="%command.label.3"
                   style="push">
             </command>
             <command
                   commandId="SrmPlugIn.preferences"
                   icon="icons/settings.png"
-                  label="Plugin Preferences"
+                  label="%command.label.4"
                   style="push">
             </command>
          </toolbar>
