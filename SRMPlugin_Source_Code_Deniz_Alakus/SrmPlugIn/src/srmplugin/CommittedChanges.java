@@ -11,6 +11,8 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 import org.eclipse.ui.part.ViewPart;
+
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -25,6 +27,7 @@ import org.eclipse.swt.layout.FillLayout;
 //import org.eclipse.swt.layout.RowLayout;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -38,6 +41,7 @@ public class CommittedChanges extends ViewPart {
 	DBConnection dataBaseCon = DBConnection.getDBConnection();
 	Communication communication = new Communication();
 	Process process = new Process();
+	java.util.List<ServiceRegistration<EventHandler>> regList = new ArrayList<ServiceRegistration<EventHandler>>();
 
 	/**
 	 * This is a callback that will allow us to create the viewer and initialize
@@ -91,7 +95,7 @@ public class CommittedChanges extends ViewPart {
 
 		Dictionary<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, "viewcommunicationserachcommitid/*");
-		ctx.registerService(EventHandler.class, handler, properties);
+		regList.add(ctx.registerService(EventHandler.class, handler, properties));
 
 		// Falls eine Commit-ID Gruppe aus dem
 		// Ranking Information TAb des Commit Changes Views ausgew�hlt werden,
@@ -265,7 +269,7 @@ public class CommittedChanges extends ViewPart {
 
 		Dictionary<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, strevent);
-		ctx.registerService(EventHandler.class, handler, properties);
+		regList.add(ctx.registerService(EventHandler.class, handler, properties));
 
 		// Falls ein Commit-ID selektiert wird,...
 		if (cntrl == Control.CommitID) {
@@ -465,6 +469,10 @@ public class CommittedChanges extends ViewPart {
 	public void dispose() {
 		// important: We need do unregister our listener when the view is
 		// disposed
+
+		for(ServiceRegistration<EventHandler> reg : regList){
+			reg.unregister();			
+		}
 
 		super.dispose();
 	}

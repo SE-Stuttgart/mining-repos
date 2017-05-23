@@ -22,6 +22,7 @@ import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
@@ -31,6 +32,9 @@ import srmprocess.DBConnection;
 
 public class Mesageview extends ViewPart {
 	public static final String ID = "SrmPlugIn.Mesageview";
+	
+	ServiceRegistration<EventHandler> reg1;
+	java.util.List<ServiceRegistration<EventHandler>> regList = new ArrayList<ServiceRegistration<EventHandler>>();
 
 	DBConnection dataBaseCon = DBConnection.getDBConnection();;
 	Communication communication = new Communication();
@@ -211,7 +215,7 @@ public class Mesageview extends ViewPart {
 		Dictionary<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, "viewcommunicationcommitdata/*");
 		BundleContext ctx = FrameworkUtil.getBundle(Mesageview.class).getBundleContext();
-		ctx.registerService(EventHandler.class, handler, properties);
+		reg1 = ctx.registerService(EventHandler.class, handler, properties);
 
 		return composite;
 
@@ -301,7 +305,7 @@ public class Mesageview extends ViewPart {
 
 		Dictionary<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, strevent);
-		ctx.registerService(EventHandler.class, handler, properties);
+		regList.add(ctx.registerService(EventHandler.class, handler, properties));
 	}
 
 	/**
@@ -311,6 +315,11 @@ public class Mesageview extends ViewPart {
 
 	public void dispose() {
 		// important: We need do unregister our listener when the view is disposed
+		
+		for(ServiceRegistration<EventHandler> reg : regList){
+			reg.unregister();			
+		}
+		reg1.unregister();
 		super.dispose();
 	}
 
