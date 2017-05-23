@@ -22,7 +22,7 @@ public class Preferences extends AbstractHandler {
 	public static int maxSize = 200;
 	public static int minSize = 20;
 	public static boolean analyzeOnEditorSelect = true;
-	public static int months = 6;
+	public static int months = 10;
 	public static Date now;
 	
 	

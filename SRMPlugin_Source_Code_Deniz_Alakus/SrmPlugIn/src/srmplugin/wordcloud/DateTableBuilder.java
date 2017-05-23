@@ -96,10 +96,7 @@ public class DateTableBuilder extends Transformer {
 										dateString = dateString.replace("#", "");
 										dateString = dateString.replace("'", "");
 
-										Date currentDate = formatter.parse(dateString);
-										System.out.println("File: "+f);
-										System.out.println("Current: "+currentDate.toString());
-										System.out.println("In Tabl: "+dateInTable.toString());
+										Date currentDate = formatter.parse(dateString);										
 										// If same file got committed on a newer point in time,
 										// take the newer date, to get the most current commit date.
 										if(currentDate.after(dateInTable)){

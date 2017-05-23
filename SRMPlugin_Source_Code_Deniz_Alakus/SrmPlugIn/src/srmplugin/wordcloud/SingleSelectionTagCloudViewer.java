@@ -5,19 +5,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.gef.cloudio.internal.ui.TagCloud;
 import org.eclipse.gef.cloudio.internal.ui.TagCloudViewer;
 import org.eclipse.gef.cloudio.internal.ui.Word;
+import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 
 @SuppressWarnings("restriction")
 public class SingleSelectionTagCloudViewer extends TagCloudViewer {
-	
+
 	private Set<Word> selection = new HashSet<>();
 
 	public SingleSelectionTagCloudViewer(TagCloud cloud) {
@@ -31,12 +40,14 @@ public class SingleSelectionTagCloudViewer extends TagCloudViewer {
 
 			@Override
 			public void mouseUp(MouseEvent e) {
+				
 				Word word = (Word) e.data;
 				if (word == null)
 					return;
 				selection.clear();
 				selection.add(word);
 				getCloud().setSelection(selection);
+				
 			}
 
 			@Override
@@ -46,7 +57,11 @@ public class SingleSelectionTagCloudViewer extends TagCloudViewer {
 
 			@Override
 			public void mouseDoubleClick(MouseEvent e) {
-			}
+				
+				}
+				
+				
+			
 		});
 		getCloud().addSelectionListener(new SelectionListener() {
 
@@ -69,6 +84,8 @@ public class SingleSelectionTagCloudViewer extends TagCloudViewer {
 			}
 		});
 	}
+
+	
 	
 	
 }

@@ -170,4 +170,5 @@ Export-Package: FPGA,
  srmplugin.wordcloud,
  srmprocess;uses:="FPGA,org.eclipse.core.commands"
 Import-Package: org.eclipse.ui,
+ org.eclipse.ui.ide,
  org.eclipse.ui.part

@@ -309,6 +309,9 @@ public class CoupledChanges extends ViewPart {
 			public void widgetSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
 				// Falls in der ausgewaehlten Zeile ein Item vorhanden ist,..
+				if(list.getSelectionIndex()==-1){
+					return;
+				}
 				if (!list.getItem(list.getSelectionIndex()).equals(" ")) {
 
 					if (DBConnection.sqlprocedureInput.size() != 0) {

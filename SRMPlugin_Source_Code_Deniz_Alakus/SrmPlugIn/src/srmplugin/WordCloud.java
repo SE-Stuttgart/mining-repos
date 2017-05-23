@@ -35,7 +35,9 @@ import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.action.Separator;
 import org.eclipse.jface.dialogs.MessageDialog;
-
+import org.eclipse.jface.resource.FontDescriptor;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredContentProvider;
@@ -50,7 +52,9 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.widgets.Composite;
 
 import org.eclipse.swt.widgets.Menu;
@@ -89,7 +93,7 @@ public class WordCloud extends ViewPart {
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "SrmPlugIn.WordCloud";
-	
+
 	ServiceRegistration<EventHandler> reg;
 
 	/**
@@ -400,6 +404,9 @@ public class WordCloud extends ViewPart {
 		BundleContext ctx = FrameworkUtil.getBundle(WordCloud.class).getBundleContext();
 
 		cloud = new TagCloud(parent, SWT.HORIZONTAL | SWT.VERTICAL);
+		FontDescriptor boldDescriptor = FontDescriptor.createFrom(cloud.getFont()).setStyle(SWT.BOLD);
+		Font boldFont = boldDescriptor.createFont(cloud.getDisplay());
+		cloud.setFont(boldFont);
 		// viewer = new TagCloudViewer(cloud);
 		viewer = new SingleSelectionTagCloudViewer(cloud);
 
@@ -410,14 +417,15 @@ public class WordCloud extends ViewPart {
 		FilePathToClusterMap filePathToClusterMap = new FilePathToClusterMap(labelProvider);
 
 		/*
-		String clusterPath1 = "Select a file in the Project";
-		String clusterPath2 = "Wordsize represents level of coupling";
-		String clusterPath3 = "Click on the Wordcloud to view corresponding commit-information";
-
-		filePathToClusterMap.putInClusterHashMap(clusterPath1);
-		filePathToClusterMap.putInClusterHashMap(clusterPath2);
-		filePathToClusterMap.putInClusterHashMap(clusterPath3);
-		*/
+		 * String clusterPath1 = "Select a file in the Project"; String
+		 * clusterPath2 = "Wordsize represents level of coupling"; String
+		 * clusterPath3 =
+		 * "Click on the Wordcloud to view corresponding commit-information";
+		 * 
+		 * filePathToClusterMap.putInClusterHashMap(clusterPath1);
+		 * filePathToClusterMap.putInClusterHashMap(clusterPath2);
+		 * filePathToClusterMap.putInClusterHashMap(clusterPath3);
+		 */
 		List<MyWord> wordList = filePathToClusterMap.getWordList();
 
 		// When the selection of file in Project explorer gets changed, this
@@ -444,11 +452,10 @@ public class WordCloud extends ViewPart {
 						// TODO Here one can start to implement a sorting by
 						// last file edit date to get weights for color shading
 						// the words.
-						
-						
-						//dateChecker = new DateChecker(currentClusterPath, null, null, null);
-						
-						
+
+						// dateChecker = new DateChecker(currentClusterPath,
+						// null, null, null);
+
 						viewer.getCloud().setMaxFontSize(Preferences.maxSize);
 						viewer.getCloud().setMinFontSize(Preferences.minSize);
 						viewer.setInput(wordList);
@@ -632,11 +639,13 @@ public class WordCloud extends ViewPart {
 									String message = ((MyWord) ((Map.Entry<MyWord, Integer>) o).getKey()).getWord();
 									String author = dataBaseCon.ReadCommitAuthor(id);
 									String date = dataBaseCon.ReadCommitDate(id);
-									//String count = ((Map.Entry<MyWord, Integer>) o).getValue().toString();
+									// String count = ((Map.Entry<MyWord,
+									// Integer>) o).getValue().toString();
 									System.out.println(
 											id + " : " + message + " : " + ((Map.Entry<MyWord, Integer>) o).getValue());
 
-									//commitdata.add(new String[] { id, count, message });
+									// commitdata.add(new String[] { id, count,
+									// message });
 									commitdata.add(new String[] { id, message, author, date });
 
 								}
@@ -725,13 +734,15 @@ public class WordCloud extends ViewPart {
 			}
 		});
 
+		
+
+
 		cloud.setBounds(0, 0, parent.getBounds().width, parent.getBounds().height);
 		cloud.zoomFit();
 
 		viewer.getCloud().setMaxFontSize(Preferences.maxSize);
 		viewer.getCloud().setMinFontSize(Preferences.minSize);
-		//TODO
-				
+		// TODO
 
 		viewer.setInput(wordList);
 
@@ -841,7 +852,7 @@ public class WordCloud extends ViewPart {
 	public void setFocus() {
 		viewer.getControl().setFocus();
 	}
-	
+
 	/**
 	 * registered listeners are being disposed
 	 */
