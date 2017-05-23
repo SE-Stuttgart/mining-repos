@@ -29,7 +29,7 @@
       <view
             category="srmpluginviews"
             class="srmplugin.CoupledChanges"
-            icon="icons/chain.png"
+            icon="/icons/chain.png"
             id="SrmPlugIn.CoupledChanges"
             name="%view.name"
             restorable="true">
@@ -44,7 +44,7 @@
       <view
             category="srmpluginviews"
             class="srmplugin.Mesageview"
-            icon="icons/message.png"
+            icon="/icons/message.png"
             id="SrmPlugIn.Mesageview"
             name="%view.name.1"
             restorable="true">
@@ -54,7 +54,7 @@
             class="srmplugin.WordCloud"
             icon="icons/cloud.png"
             id="SrmPlugIn.WordCloud"
-            name="%view.name.3"
+            name="Word Cloud"
             restorable="true">
       </view>
    </extension>
@@ -122,7 +122,7 @@
                id="SrmPlugIn.toolbar">
             <command
                   commandId="SrmPlugIn.settings"
-                  icon="/srm.gif"
+                  icon="icons/srm.gif"
                   label="%command.label.3"
                   style="push">
             </command>

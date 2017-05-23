@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: SrmPlugIn;singleton:=true
-Bundle-Version: 1.3
+Bundle-Version: 1.4
 Bundle-Activator: srmplugin.Activator
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
@@ -170,5 +170,4 @@ Export-Package: FPGA,
  srmplugin.wordcloud,
  srmprocess;uses:="FPGA,org.eclipse.core.commands"
 Import-Package: org.eclipse.ui,
- org.eclipse.ui.ide,
  org.eclipse.ui.part
