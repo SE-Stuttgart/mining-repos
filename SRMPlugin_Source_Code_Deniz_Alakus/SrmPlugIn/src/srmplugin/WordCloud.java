@@ -73,6 +73,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
 
@@ -88,6 +89,8 @@ public class WordCloud extends ViewPart {
 	 * The ID of the view as specified by the extension.
 	 */
 	public static final String ID = "SrmPlugIn.WordCloud";
+	
+	ServiceRegistration<EventHandler> reg;
 
 	/**
 	 * Selection listener for getting the filename / path of Package Explorer
@@ -461,7 +464,7 @@ public class WordCloud extends ViewPart {
 
 		Dictionary<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, "viewcommunicationfile/*");
-		ctx.registerService(EventHandler.class, handler, properties);
+		reg = ctx.registerService(EventHandler.class, handler, properties);
 
 		viewer.setContentProvider(new IStructuredContentProvider() {
 
@@ -837,5 +840,17 @@ public class WordCloud extends ViewPart {
 	 */
 	public void setFocus() {
 		viewer.getControl().setFocus();
+	}
+	
+	/**
+	 * registered listeners are being disposed
+	 */
+	public void dispose() {
+		// important: We need do unregister our listener when the view is
+		// disposed
+		getSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(selListener);
+		reg.unregister();
+
+		super.dispose();
 	}
 }

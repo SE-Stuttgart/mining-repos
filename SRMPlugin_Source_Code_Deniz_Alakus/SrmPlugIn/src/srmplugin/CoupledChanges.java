@@ -33,7 +33,7 @@ import org.eclipse.swt.events.SelectionListener;
 //import org.eclipse.swt.layout.GridData;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-
+import org.osgi.framework.ServiceRegistration;
 //import org.osgi.framework.ServiceReference;
 //import org.osgi.service.event.Event;
 //import org.osgi.service.event.EventAdmin;
@@ -65,6 +65,8 @@ import srmprocess.Process;;
 
 public class CoupledChanges extends ViewPart {
 	public static final String ID = "SrmPlugIn.CoupledChanges";
+	
+	ServiceRegistration<EventHandler> reg;
 
 	@SuppressWarnings("unused")
 	
@@ -296,7 +298,8 @@ public class CoupledChanges extends ViewPart {
 
 		Dictionary<String, String> properties = new Hashtable<String, String>();
 		properties.put(EventConstants.EVENT_TOPIC, "viewcommunicationfile/*");
-		ctx.registerService(EventHandler.class, handler, properties);
+		reg = ctx.registerService(EventHandler.class, handler, properties);
+		
 
 		// Falls ein File aus der File-Gruppe ausgewaehlt wird, werden zwei
 		// Werte ermittelt.
@@ -436,11 +439,14 @@ public class CoupledChanges extends ViewPart {
 		// viewer.getControl().setFocus();
 	}
 
-	// registerte listener werden gel�scht.
+	/**
+	 * registered listeners are being disposed
+	 */
 	public void dispose() {
 		// important: We need do unregister our listener when the view is
 		// disposed
 		getSite().getWorkbenchWindow().getSelectionService().removeSelectionListener(listener);
+		reg.unregister();
 
 		super.dispose();
 	}
