@@ -61,8 +61,17 @@ public class WordCloudLabelProvider extends BaseLabelProvider implements ICloudL
 		long val = lastCommitDate.getTime();
 		long upperbound = Preferences.now.getTime();
 		long lowerbound = Preferences.getLimit().getTime();
+		
+		System.out.println("Word: " + val + " ,Upper: "+ upperbound + " ,lower: " + lowerbound);
 
-		float mapped = map(val,lowerbound,upperbound,70,100) / 100;
+		if(val>upperbound){
+			val = upperbound;
+		}
+		if(val<lowerbound){
+			val = lowerbound;
+		}
+		float mapped = map(val,lowerbound,upperbound,50,100) / 100;
+		System.out.println("mapped: " + mapped);
 		
 		return mapped;
 	}

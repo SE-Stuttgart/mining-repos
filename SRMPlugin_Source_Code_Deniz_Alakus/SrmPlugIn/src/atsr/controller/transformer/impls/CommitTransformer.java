@@ -146,7 +146,7 @@ public class CommitTransformer extends Transformer {
 		} catch (IOException e) {
 			// Error handling IO
 			JOptionPane.showMessageDialog(null,
-					"Error with the selected File! \nPlease check if the file still exists!", "IO Error",
+					"Error with the selected git path! \nPlease check if the path is correct!", "IO Error",
 					JOptionPane.ERROR_MESSAGE);
 			this.notifyProgress(0);
 		} catch (SQLException e) {
