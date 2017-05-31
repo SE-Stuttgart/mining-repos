@@ -2,7 +2,7 @@
 <feature
       id="SRM.plugin"
       label="SRMPlugin"
-      version="1.4">
+      version="1.5">
 
    <description>
       SRM Plugin for Software Database Mining

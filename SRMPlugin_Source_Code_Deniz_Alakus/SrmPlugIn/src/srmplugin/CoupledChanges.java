@@ -1,3 +1,25 @@
+/*******************************************************************************
+ * If you modify this Program, or any covered work, by linking or
+ * combining it with FPGA (or a modified version of that
+ * library), containing parts covered by the terms of EPL, the licensors of this Program grant you additional permission to convey the resulting work. Corresponding source for a non-source form of such a combination shall include the source code for the parts of FPGA used as well as that of the covered work.
+ * 
+ * 
+ * SPMF GPL Exception
+ * 
+ * Section7 Exception
+ * 
+ * As a special exception to the terms and conditions of the GNU General Public License Version 3 (the "GPL"): You are free to convey a modified version that is formed entirely from this file (for purposes of this exception, the "Program" under the GPL) and the works identified at (http://www.philippe-fournier-viger.com/spmf/index.php?link=license.php) (each an "Excepted Work"), which are conveyed to you by Philippe Fournier-Viger and licensed under one the licenses identified in the Excepted License List below, as long as:
+ * 
+ *    1. You obey the GPL in all respects for the Program and the modified version, except for Excepted Work which are identifiable sections of the modified version.
+ * 
+ * 2. All Excepted Works which are identifiable sections of the modified version, are distributed subject to the Excepted License.
+ *          
+ * If the above conditions are not met, then the Program may only be copied, modified, distributed or used under the terms and conditions of the GPL.
+ * 
+ * Excepted License List
+ * 
+ *     * Eclipse Public License: version 1.0
+ ******************************************************************************/
 package srmplugin;
 
 import java.util.ArrayList;
