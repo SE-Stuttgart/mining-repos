@@ -12,11 +12,6 @@
             id="SrmPlugIn.perspective">
       </perspective>
       
-     <perspective
-            name="%perspective.name.0"
-            class="srmplugin.Perspective2"
-            id="SrmPlugIn.perspective2">
-      </perspective>
       
    </extension>
    
@@ -33,28 +28,13 @@
             id="SrmPlugIn.CoupledChanges"
             name="%view.name"
             restorable="true">
-      </view>
-      <view
-            category="srmpluginviews"
-            class="srmplugin.CommittedChanges"
-            id="SrmPlugIn.CommittedChanges"
-            name="%view.name.0"
-            restorable="true">
-      </view>
+      </view>      
       <view
             category="srmpluginviews"
             class="srmplugin.Mesageview"
             icon="/icons/message.png"
             id="SrmPlugIn.Mesageview"
             name="%view.name.1"
-            restorable="true">
-      </view>
-      <view
-            category="srmpluginviews"
-            class="srmplugin.WordCloud"
-            icon="icons/cloud.png"
-            id="SrmPlugIn.WordCloud"
-            name="Word Cloud"
             restorable="true">
       </view>
    </extension>
@@ -91,10 +71,6 @@
             id="SrmPlugIn.openperspective"
             name="%command.name.1">
       </command>
-      <command
-            id="SrmPlugIn.preferences"
-            name="%command.name.2">
-      </command>
    </extension>
    
    <extension
@@ -106,10 +82,6 @@
       <handler
             class="srmplugin.openPerspective"
             commandId="SrmPlugIn.openperspective">
-      </handler>
-      <handler
-            class="srmplugin.Preferences"
-            commandId="SrmPlugIn.preferences">
       </handler>
       
        </extension>
@@ -124,12 +96,6 @@
                   commandId="SrmPlugIn.settings"
                   icon="icons/srm.gif"
                   label="%command.label.3"
-                  style="push">
-            </command>
-            <command
-                  commandId="SrmPlugIn.preferences"
-                  icon="icons/settings.png"
-                  label="%command.label.4"
                   style="push">
             </command>
          </toolbar>

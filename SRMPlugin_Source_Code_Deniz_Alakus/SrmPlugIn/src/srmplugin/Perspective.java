@@ -17,7 +17,7 @@ public class Perspective implements IPerspectiveFactory {
 		// Add "show views".
 		layout.addShowViewShortcut("SrmPlugIn.CoupledChanges");
 		layout.addShowViewShortcut("SrmPlugIn.Mesageview");
-		layout.addShowViewShortcut("SrmPlugIn.WordCloud");
+		
 	}
 
 	public void defineLayout(IPageLayout layout) {
@@ -30,14 +30,12 @@ public class Perspective implements IPerspectiveFactory {
 		left.addView(IPageLayout.ID_PROJECT_EXPLORER);
 
 		IFolderLayout leftbottom = layout.createFolder("leftbottom", IPageLayout.BOTTOM, (float) 0.6,
-				IPageLayout.ID_PROJECT_EXPLORER);
+				IPageLayout.ID_EDITOR_AREA);
 		leftbottom.addView("SrmPlugIn.CoupledChanges");
 		
-		IFolderLayout bottom = layout.createFolder("bottom", IPageLayout.BOTTOM, (float) 0.6, editorArea);
-		bottom.addView("SrmPlugIn.WordCloud");
 		
-		IFolderLayout bottom2 = layout.createFolder("bottom2", IPageLayout.RIGHT, (float) 0.5,
-				"SrmPlugIn.WordCloud");
+		IFolderLayout bottom2 = layout.createFolder("bottomright", IPageLayout.RIGHT, (float) 0.5,
+				"SrmPlugIn.CoupledChanges");
 		bottom2.addView("SrmPlugIn.Mesageview");
 	}
 }

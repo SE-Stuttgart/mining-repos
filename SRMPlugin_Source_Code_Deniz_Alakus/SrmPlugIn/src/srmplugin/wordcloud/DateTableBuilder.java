@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Observer;
 
@@ -22,14 +21,11 @@ import javax.swing.JOptionPane;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
 
 import atsr.controller.transformer.Transformer;
-import atsr.model.Commit;
 import atsr.model.Settings;
 import srmplugin.Preferences;
-import srmprocess.DBConnection;
 
 public class DateTableBuilder extends Transformer {
 
@@ -48,6 +44,7 @@ public class DateTableBuilder extends Transformer {
 
 	/**
 	 * query git for log of current file
+	 * this is used to sort out files that are currently not in the project structure anymore
 	 */
 	public void createDateTable() {
 		

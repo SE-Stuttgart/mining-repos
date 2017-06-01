@@ -105,12 +105,11 @@ public class CommitTransformer extends Transformer {
 						if (block) {
 							if (row.length() == 0) {
 
-								System.out.println("WITH OLD FILES: " + files);
+								
 								if (ATSRPage.getIgnoreOldFiles()) {
 									files = removeOldDeletedFiles(files, currentExistingFiles);
 								}
 
-								System.out.println("ONLY NEW FILES: " + files);
 								
 								commit = createCommit(header, files);
 								if (commit != null) {
